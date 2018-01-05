@@ -1,8 +1,8 @@
 # encoding: utf-8
 
+import objc
+from GlyphsApp import *
 from GlyphsApp.plugins import *
-
-from vanilla import Window, Group, TextBox, PopUpButton, CheckBox
 
 from unicode_info import UnicodeInfoWindow
 import jkUnicode
@@ -31,6 +31,7 @@ def get_unicode_for_glyph(glyph):
 class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 	
 	def settings(self):
+		from vanilla import CheckBox, Group, PopUpButton, TextBox, Window
 		self.name = Glyphs.localize({'en': u'Unicode Info', 'de': u'Unicode-Info'})
 		
 		# Create Vanilla window and group with controls
