@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-## Unicode Info
-## editor-independent module
-## Version 0.1 by Jens Kutilek 2016-10-24
-## Version 1.0 by Jens Kutilek 2017-01-19
+# Unicode Info
+# editor-independent module
+# Version 0.1 by Jens Kutilek 2016-10-24
+# Version 1.0 by Jens Kutilek 2017-01-19
+# Version 1.1 by Jens Kutilek 2021-10-16
 
 import vanilla
 import jkUnicode
@@ -12,7 +13,7 @@ from jkUnicode.uniName import uniName
 try:
     from jkUnicode.orthography import OrthographyInfo
     orth_present = True
-except:
+except ImportError:
     orth_present = False
 
 
@@ -27,12 +28,12 @@ def get_extension_map(font):
     for g in font.keys():
         if "." in g[1:]:
             base, ext = g.split(".", 1)
-            if not base in d:
+            if base not in d:
                 d[base] = [g]
             else:
                 d[base].append(g)
         else:
-            if not g in d:
+            if g not in d:
                 d[g] = []
     return d
 
@@ -41,7 +42,7 @@ def get_extra_names(font, uni_name_tuples):
     ext_map = get_extension_map(font)
     additions = []
     for u, n in uni_name_tuples:
-            additions.extend([(u, e) for e in ext_map.get(n, [])])
+        additions.extend([(u, e) for e in ext_map.get(n, [])])
     uni_name_tuples.extend(additions)
     return list(set(uni_name_tuples))
 
@@ -59,12 +60,8 @@ def get_unicode_for_glyphname(name=None):
     return u
 
 
-
-
 class UnicodeInfoWindow(object):
-    
     def setup_window(self):
-        
         width = 320
         if orth_present:
             height = 153
@@ -72,14 +69,14 @@ class UnicodeInfoWindow(object):
             height = 116
         ini_height = height - 16
         axis = 50
-        
+
         self.w = vanilla.FloatingWindow(
             (width, ini_height),
             "Unicode Info",
             minSize=(width, height),
             maxSize=(530, height)
         )
-        
+
         y = 10
         self.w.uni_name_label = vanilla.TextBox((8, y, axis-10, 20),
                                                "Name",
@@ -457,19 +454,19 @@ class UnicodeInfoWindow(object):
             for g in self.font:
                 myUnicode = get_unicode_for_glyphname(g.name)
                 if g.unicode != myUnicode:
-                    print "%s:" % g.name,
+                    print(f"{g.name}:", end=" ")
                     if g.unicode is not None:
-                        print "%x ->" % g.unicode,
+                        print("%x ->" % g.unicode, end=" ")
                     else:
-                        print "<None> ->",
+                        print("<None> ->", end=" ")
                     if myUnicode is not None:
-                        print "%x" % myUnicode,
+                        print("%x" % myUnicode, end=" ")
                     else:
-                        print "<None>",
+                        print("<None>", end=" ")
                     if myUnicode in unicodes:
-                        print "-- Ignored: already in use (/%s)." % unicodes[myUnicode]
+                        print("-- Ignored: already in use (/%s)." % unicodes[myUnicode])
                     else:
-                        print
+                        print()
                         g.unicode = myUnicode
                         unicodes[myUnicode] = g.name
     

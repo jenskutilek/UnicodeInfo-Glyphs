@@ -1,18 +1,18 @@
 # encoding: utf-8
 
 import objc
-from GlyphsApp import *
-from GlyphsApp.plugins import *
+from GlyphsApp import Glyphs, UPDATEINTERFACE
+from GlyphsApp.plugins import PalettePlugin
 
 from unicode_info import UnicodeInfoWindow
 import jkUnicode
-from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
-from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
-from jkUnicode.uniName import uniName
+# from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+from jkUnicode.uniBlock import get_block, uniNameToBlock  # get_codepoints
+# from jkUnicode.uniName import uniName
 try:
 	from jkUnicode.orthography import OrthographyInfo
 	orth_present = True
-except:
+except ImportError:
 	orth_present = False
 
 
@@ -29,7 +29,7 @@ def get_unicode_for_glyph(glyph):
 
 
 class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
-	
+	@objc.python_method
 	def settings(self):
 		from vanilla import CheckBox, Group, PopUpButton, TextBox, Window
 		self.name = Glyphs.localize({'en': u'Unicode Info', 'de': u'Unicode-Info'})
@@ -55,7 +55,7 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 		# Set dialog to NSView
 		self.dialog = self.w.getNSView()
 
-
+	@objc.python_method
 	def setup_class(self):
 		
 		self.info = jkUnicode.UniInfo(0)
@@ -80,7 +80,7 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 			#else:
 			#	self.w.include_optional.enable(True)
 	
-
+	@objc.python_method
 	def start(self):
 		# Adding a callback for the 'GSUpdateInterface' event
 		Glyphs.addCallback(self.update, UPDATEINTERFACE)
@@ -89,18 +89,20 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 		self.glyph_name = None
 		self.glyph = None
 		self.setup_class()
-	
+
+	@objc.python_method
 	def __del__(self):
 		Glyphs.removeCallback(self.update)
 
-	def update( self, sender ):
+	@objc.python_method
+	def update(self, sender):
 
 		# Extract font from sender
-		font = sender.object()
+		font = sender.object().parent
 		uni = None
 
 		# We’re in the Edit View
-		if font.currentTab:
+		if hasattr(font, "currentTab") and font.currentTab:
 			# Check whether glyph is being edited
 			if len(font.selectedLayers) == 1:
 				glyph = font.selectedLayers[0].parent
@@ -118,7 +120,7 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 
 		# We’re in the Font view
 		else:
-			if len(font.selection) == 1:
+			if font and len(font.selection) == 1:
 				glyph = font.selection[0]
 				if font == self.font:
 					if glyph.name == self.glyph_name:
@@ -139,7 +141,8 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 
 		self._updateBlock(self.unicode)
 		self._updateOrthographies()
-	
+
+	@objc.python_method
 	def _updateBlock(self, u):
 		if u is None:
 			self.w.block_list.set(0)
@@ -156,6 +159,7 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 				#self.w.show_block.enable(False)
 		#self.selectBlock()
 
+	@objc.python_method
 	def _updateOrthographies(self):
 		if not orth_present:
 			return
@@ -191,7 +195,7 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 					new_index = names.index(old_sel)
 		
 		self.selectOrthography(index=new_index)
-	
+
 	@property
 	def font(self):
 		return self._font
@@ -202,7 +206,8 @@ class UnicodeInfoPalette (PalettePlugin, UnicodeInfoWindow):
 		if self._font is not None:
 			if orth_present:
 				self.ortho.cmap = [int(g.unicode, 16) for g in self.font.glyphs if g.unicode]
-	
+
+	@objc.python_method
 	def __file__(self):
 		"""Please leave this method unchanged"""
 		return __file__
