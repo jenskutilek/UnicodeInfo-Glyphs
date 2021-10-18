@@ -12,10 +12,10 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>UnicodeInfo</string>
-	<key>CFBundleVersion</key>
-	<string>3</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.2.0</string>
+	<key>CFBundleVersion</key>
+	<string>3</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/jenskutilek/UnicodeInfo-Glyphs/master/UnicodeInfo.glyphsPalette/Contents/Info.plist</string>
 	<key>productPageURL</key>
