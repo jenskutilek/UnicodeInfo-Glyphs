@@ -25,7 +25,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Jens Kutilek, 2017-2021</string>
 	<key>NSPrincipalClass</key>
-	<string>UnicodeInfoPalette</string>
+	<string>UnicodeInfo</string>
 	<key>PyMainFileNames</key>
 	<array>
 		<string>plugin.py</string>
