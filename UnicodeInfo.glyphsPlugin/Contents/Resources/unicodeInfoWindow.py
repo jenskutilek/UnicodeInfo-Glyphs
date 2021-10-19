@@ -167,6 +167,16 @@ class UnicodeInfoWindow(object):
 
     @property
     def font_fallback(self):
+        """
+        Return the current glyph's font or, as a fallback, the current font.
+        """
+        raise NotImplementedError
+
+    @property
+    def font_glyphs(self):
+        """
+        Return the glyphs dict of the current glyph's font.
+        """
         raise NotImplementedError
 
     @property
@@ -179,18 +189,39 @@ class UnicodeInfoWindow(object):
         if self._glyph is None:
             self.font = None
         else:
-            self.font = self._glyph.font
+            self.font = self.glyph_font
+
+    @property
+    def glyph_font(self):
+        """
+        Return the current glyph's font.
+        """
+        raise NotImplementedError
+
+    @property
+    def glyph_unicode(self):
+        """
+        Return the current glyph's Unicode value as int.
+        """
+        raise NotImplementedError
+
+    @objc.python_method
+    def glyphs_for_font(self, font):
+        """
+        Return the glyphs dict for a font.
+        """
+        raise NotImplementedError
 
     @objc.python_method
     def get_extensions(self, font):
         # Return all used glyph name extensions in the font
-        return [n.split(".", 1)[1] for n in font.keys() if "." in n[1:]]
+        return [n.split(".", 1)[1] for n in self.glyphs_for_font(font).keys() if "." in n[1:]]
 
     @objc.python_method
     def get_extension_map(self, font):
         # Return a map of base glyph names to extension names for the font
         d = {}
-        for g in font.keys():
+        for g in self.glyphs_for_font(font).keys():
             if "." in g[1:]:
                 base, ext = g.split(".", 1)
                 if base not in d:
@@ -284,13 +315,13 @@ class UnicodeInfoWindow(object):
             self.w.case.enable(False)
         else:
             # Unicode
-            if u == self.glyph.unicode:
+            if u == self.glyph_unicode:
                 self.w.code.set("😀 %04X" % u)
             else:
-                if self.glyph.unicode is None:
+                if self.glyph_unicode is None:
                     self.w.code.set("😡 None → %04X" % u)
                 else:
-                    self.w.code.set("😡 %04X → %04X" % (self.glyph.unicode, u))
+                    self.w.code.set("😡 %04X → %04X" % (self.glyph_unicode, u))
 
             # Glyph name
             if self.glyph.name == self.info.glyphname:
@@ -402,7 +433,7 @@ class UnicodeInfoWindow(object):
         if self.glyph is None:
             self._updateInfo(None)
         else:
-            self.unicode = self.glyph.unicode
+            self.unicode = self.glyph_unicode
             fake = False
             if self.unicode is None:
                 if "." in self.glyph.name[1:]:
