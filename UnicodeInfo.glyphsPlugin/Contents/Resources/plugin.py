@@ -1,13 +1,14 @@
 # encoding: utf-8
 
 import objc
+
 from AppKit import NSMenuItem
+from Foundation import NSMutableDictionary
 from GlyphsApp import Glyphs, UPDATEINTERFACE, WINDOW_MENU
 from GlyphsApp.plugins import GeneralPlugin
 
+from jkUnicode.aglfn import getGlyphnameForUnicode
 from unicodeInfoWindow import UnicodeInfoWindow
-
-from jkUnicode.uniBlock import get_block
 
 
 class GlyphsUnicodeInfoWindow(UnicodeInfoWindow):
@@ -31,7 +32,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     def start(self):
         newMenuItem = NSMenuItem(self.name, self.showWindow_)
         Glyphs.menu[WINDOW_MENU].append(newMenuItem)
-        print(newMenuItem)
 
     @objc.python_method
     def __del__(self):
@@ -39,7 +39,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
 
     @objc.python_method
     def update(self, sender):
-
         # Extract font from sender
         font = sender.object().parent
         uni = None
@@ -49,11 +48,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             # Check whether glyph is being edited
             if len(font.selectedLayers) == 1:
                 glyph = font.selectedLayers[0].parent
-                if font == self.font:
-                    if glyph.name == self.glyph_name:
-                        return
-                else:
-                    self.font = font
                 self.glyph_name = glyph.name
                 self.glyph = glyph
                 uni = self.get_unicode_for_glyph(glyph)
@@ -65,11 +59,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         else:
             if font and len(font.selection) == 1:
                 glyph = font.selection[0]
-                if font == self.font:
-                    if glyph.name == self.glyph_name:
-                        return
-                else:
-                    self.font = font
                 self.glyph_name = glyph.name
                 self.glyph = glyph
                 uni = self.get_unicode_for_glyph(glyph)
@@ -82,8 +71,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         else:
             self.unicode = uni
 
-        self._updateBlock(self.unicode)
-        self._updateOrthographies()
+        self._updateInfo(u=self.unicode, fake=False)
 
     # Overrides for the UnicodeInfoWindow base class
 
@@ -106,6 +94,26 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
 
         return self._glyph.parent
 
+    @property
+    def glyph_unicode(self):
+        if self._glyph is None:
+            return None
+        if self._glyph.unicode is None:
+            return None
+
+        return int(self._glyph.unicode, 16)
+
+    @objc.python_method
+    def glyphs_for_font(self, font):
+        if font is None:
+            return {}
+        return self._font.glyphs
+
+    @objc.python_method
+    @property
+    def gnful_name(self, u):
+        return None
+
     # def get_unicode_for_glyphname(self, name=None):
     #     if name is None:
     #         return None
@@ -118,8 +126,12 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     #             u = u[1]
     #     return u
 
-    @property
-    def get_unicode_for_glyph(glyph):
+    @objc.python_method
+    def get_glyphname_for_unicode(self, u):
+        return getGlyphnameForUnicode(u)
+
+    @objc.python_method
+    def get_unicode_for_glyph(self, glyph):
         uni = glyph.unicode
         if uni is None:
             if "." in glyph.name:
@@ -132,17 +144,45 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
 
     @objc.python_method
     def toggleCase(self, sender=None):
-        pass
-        # if self.font is None:
-        #     return
+        font = self.font_fallback
+        if font is None:
+            return
+        if self.case is None:
+            return
 
-        # glyphname = getGlyphnameForUnicode(self.case)
-        # if self.view is None:
-        #     # No Glyph Window, use the selection in the Font Window
-        #     self.font.selectedGlyphNames = [glyphname]
-        # else:
-        #     # Show the cased glyph in the Glyph Window
-        #     SetCurrentGlyphByName(glyphname)
+        glyphname = self.get_glyphname_for_unicode(self.case)
+        if glyphname is None:
+            return
+
+        if hasattr(font, "currentTab") and font.currentTab:
+            # We’re in the Edit View
+            # Check whether glyph is being edited
+            font.currentTab.text = f"/{glyphname}"
+        else:
+            # We’re in the Font view
+            font.selection = [font[glyphname]]
+
+    @objc.python_method
+    def set_filter(self, glyph_names):
+        font = self.font_fallback
+        if font is None:
+            return
+
+        filterController = font.fontView.glyphsGroupViewController()
+        glyphGroups = filterController.glyphGroups()[2]["subGroup"]
+
+        if "Unicode Info" in glyphGroups:
+            filter = glyphGroups["Unicode Info"]
+        else:
+            filter = NSMutableDictionary.dictionaryWithObjectsAndKeys_(
+                True, "isLeaf",
+                "Unicode Info", "name",
+                glyph_names, "list",
+                "CustomFilterListTemplate", "icon",
+                None
+            )
+            glyphGroups.append(filter)
+            filterController.saveCustomFilters()
 
     # Glyphs stuff
 
