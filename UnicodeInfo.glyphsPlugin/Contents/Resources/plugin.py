@@ -110,7 +110,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         return self._font.glyphs
 
     @objc.python_method
-    @property
     def gnful_name(self, u):
         return None
 
@@ -172,17 +171,25 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         glyphGroups = filterController.glyphGroups()[2]["subGroup"]
 
         if "Unicode Info" in glyphGroups:
-            filter = glyphGroups["Unicode Info"]
+            flt = glyphGroups["Unicode Info"]
         else:
-            filter = NSMutableDictionary.dictionaryWithObjectsAndKeys_(
+            flt = NSMutableDictionary.dictionaryWithObjectsAndKeys_(
                 True, "isLeaf",
                 "Unicode Info", "name",
                 glyph_names, "list",
                 "CustomFilterListTemplate", "icon",
                 None
             )
-            glyphGroups.append(filter)
+            glyphGroups.append(flt)
             filterController.saveCustomFilters()
+
+    @objc.python_method
+    def _saveGlyphSelection(self, font=None):
+        pass
+
+    @objc.python_method
+    def _restoreGlyphSelection(self, font=None):
+        pass
 
     # Glyphs stuff
 
