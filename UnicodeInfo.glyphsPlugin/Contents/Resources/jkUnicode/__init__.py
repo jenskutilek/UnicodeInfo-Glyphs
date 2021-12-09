@@ -43,7 +43,7 @@ categoryName = {
 }
 
 
-def get_expanded_glyph_list(unicodes):
+def get_expanded_glyph_list(unicodes, ui=None):
     """"Expand" or annotate a list of unicodes.
     For unicodes that have a case mapping (UC or LC), the target unicode of the
     case mapping will be added to the list. AGLFN glyph names are added to the
@@ -51,9 +51,13 @@ def get_expanded_glyph_list(unicodes):
     sorted by unicode value.
 
     :param unicodes: A list of unicodes (int)
-    :type unicodes: list"""
+    :type unicodes: list
+
+    :param  ui: The UniInfo instance to use. If None, one will be instantiated.
+    :type  ui: UniInfo"""
     glyphs = []
-    ui = UniInfo(0)
+    if ui is None:
+        ui = UniInfo(0)
     for ch in unicodes:
         ui.unicode = ch
         glyphs.append((ch, ui.glyphname))
@@ -99,6 +103,33 @@ class UniInfo(object):
         :param uni: The codepoint.
         :type uni: int"""
         self.unicode = uni
+        self._load_uni_name()
+
+    def _load_uni_name(self, file_name="uni_names"):
+        """
+        Import uniName from JSON or from Python
+        """
+        from jkUnicode.tools.jsonhelpers import (
+            dict_from_file,
+            json_path,
+            json_to_file
+        )
+        from time import time
+        try:
+            start = time()
+            self.uniName = {
+                int(k): v
+                for k, v in dict_from_file(json_path, file_name).items()
+            }
+            stop = time()
+            print(f"Loaded Unicode Name data from JSON in {stop - start} s.")
+        except FileNotFoundError:
+            start = time()
+            from jkUnicode.uniName import uniName
+            self.uniName = uniName
+            json_to_file(json_path, file_name, self.uniName)
+            stop = time()
+            print(f"Converted Unicode Name data to JSON in {stop - start} s.")
 
     @property
     def unicode(self):
