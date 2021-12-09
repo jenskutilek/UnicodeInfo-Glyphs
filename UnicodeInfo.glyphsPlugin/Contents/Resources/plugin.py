@@ -234,9 +234,13 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         if font is None:
             return
 
-        glyph_list = self.get_block_glyph_list(block, font, False)
-        glyph_list = [n for n in glyph_list if n not in font.glyphs]
-        print(" ".join(glyph_list))
+        glyph_list = [
+            n
+            for n in self.get_block_glyph_list(block, font, False)
+            if n not in font.glyphs
+        ]
+        print("Adding glyphs:", " ".join(glyph_list))
+        [font.glyphs.append(GSGlyph(n)) for n in glyph_list]
 
     @objc.python_method
     def _addMissingOrthography(self, orthography):
@@ -244,9 +248,13 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         if font is None:
             return
 
-        glyph_list = self.get_orthography_glyph_list(orthography, font, False)
-        glyph_list = [n for n in glyph_list if n not in font.glyphs]
-        print(" ".join(glyph_list))
+        glyph_list = [
+            n
+            for n in self.get_orthography_glyph_list(orthography, font, False)
+            if n not in font.glyphs
+        ]
+        print("Adding glyphs:", " ".join(glyph_list))
+        [font.glyphs.append(GSGlyph(n)) for n in glyph_list]
 
     @objc.python_method
     def _saveGlyphSelection(self, font=None):
