@@ -80,7 +80,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return set([int(u, 16) for u in glyph.unicodes])
 
     @objc.python_method
-    def updateInfo(self, sender):
+    def updateInfo(self, sender=None):
         font = Glyphs.font
         self.font = font
         uni = None
