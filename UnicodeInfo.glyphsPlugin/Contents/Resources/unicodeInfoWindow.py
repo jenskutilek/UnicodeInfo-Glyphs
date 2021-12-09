@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import jkUnicode
-
 import objc
 
+from jkUnicode import UniInfo, get_expanded_glyph_list
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
@@ -151,10 +150,10 @@ class UnicodeInfoWindow:
                 sizeStyle="small",
             )
 
-        self.info = jkUnicode.UniInfo(0)
+        self.info = UniInfo(0)
         self.unicode = None
         if self.orth_present:
-            self.ortho = OrthographyInfo()
+            self.ortho = OrthographyInfo(ui=self.info)
             self.ortho_list = []
         self.case = None
         self.view = None
@@ -598,7 +597,7 @@ class UnicodeInfoWindow:
         else:
             glyph_list = []
 
-        base = jkUnicode.get_expanded_glyph_list(
+        base = get_expanded_glyph_list(
             orthography.unicodes_base, ui=self.info
         )
         base = self.get_extra_names(font, base)
@@ -607,7 +606,7 @@ class UnicodeInfoWindow:
             for u, n in sorted(base)
         ])
 
-        punc = jkUnicode.get_expanded_glyph_list(
+        punc = get_expanded_glyph_list(
             orthography.unicodes_punctuation, ui=self.info
         )
         punc = self.get_extra_names(font, punc)
@@ -620,7 +619,7 @@ class UnicodeInfoWindow:
             ])
 
         if self.include_optional:
-            optn = jkUnicode.get_expanded_glyph_list(
+            optn = get_expanded_glyph_list(
                 orthography.unicodes_optional, ui=self.info
             )
             optn = self.get_extra_names(font, optn)

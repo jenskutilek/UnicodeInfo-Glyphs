@@ -101,8 +101,8 @@ class UniInfo(object):
 
         :param uni: The codepoint.
         :type uni: int"""
-        self.unicode = uni
         self._load_uni_name()
+        self.unicode = uni
 
     def _load_uni_name(self, file_name="uni_names"):
         """
