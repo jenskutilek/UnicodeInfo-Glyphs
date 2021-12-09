@@ -200,7 +200,7 @@ class UnicodeInfoWindow(object):
                 cmap = set()
                 for g in self.font_glyphs:
                     if g.unicodes:
-                        cmap |= set(g.unicodes)
+                        cmap |= self.glyph_unicodes(g)
                 self.ortho.cmap = cmap
 
     @property
@@ -242,6 +242,13 @@ class UnicodeInfoWindow(object):
         Return the current glyph's Unicode value as int.
         """
         raise NotImplementedError
+
+    @objc.python_method
+    def glyph_unicodes(self, glyph):
+        """
+        Return a glyph's Unicode values as set of int.
+        """
+        return set(glyph.unicodes)
 
     @objc.python_method
     def glyphs_for_font(self, font):

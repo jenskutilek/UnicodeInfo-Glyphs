@@ -33,6 +33,14 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         Glyphs.menu[WINDOW_MENU].append(newMenuItem)
 
     @objc.python_method
+    def glyph_unicodes(self, glyph):
+        """
+        Return a glyph's Unicode values as set of int.
+        """
+        # Glyphs stores Unicode values as hex string
+        return set([int(u, 16) for u in glyph.unicodes])
+
+    @objc.python_method
     def updateInfo(self, sender):
         font = Glyphs.font
         self.font = font
