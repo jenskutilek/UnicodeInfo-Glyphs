@@ -152,7 +152,7 @@ class UniInfo(object):
         else:
             self._block = get_block(self._unicode)
             self._script = get_script(self._unicode)
-            self._name = uniName.get(self._unicode, None)
+            self._name = self.uniName.get(self._unicode, None)
             # TODO: Add nicer names based on original Unicode names?
             if self._name is None:
                 if 0xE000 <= self._unicode < 0xF8FF:
