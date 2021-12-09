@@ -5,7 +5,6 @@ import os
 import weakref
 from pickle import dump, load
 from time import time
-from jkUnicode import UniInfo
 from jkUnicode.tools.jsonhelpers import dict_from_file
 
 
@@ -16,27 +15,6 @@ IGNORED_UNICODES = [
     0x2032,  # minute
     0x2033,  # second
 ]
-
-
-ui = UniInfo(0)
-
-
-def cased(codepoint_list):
-    """
-    Return a list with its Unicode case mapping toggled. If a codepoint has
-    no lowercase or uppercase mapping, it is dropped from the list.
-
-    :param codepoint_list: The list of integer codepoints.
-    :type codepoint_list: list
-    """
-    result = []
-    for c in codepoint_list:
-        ui.unicode = c
-        if ui.lc_mapping:
-            result.append(ui.lc_mapping)
-        elif ui.uc_mapping:
-            result.append(ui.uc_mapping)
-    return list(set(result))
 
 
 class Orthography(object):
@@ -98,19 +76,19 @@ unicodes_any
         # points of each category.
         u_list = uni_info.get("base", [])
         self.unicodes_base = (
-            set(u_list + cased(u_list)) - self.info.ignored_unicodes
+            set(u_list + self.cased(u_list)) - self.info.ignored_unicodes
         )
 
         u_list = uni_info.get("optional", [])
         self.unicodes_optional = (
-            set(u_list + cased(u_list))
+            set(u_list + self.cased(u_list))
             - self.unicodes_base
             - self.info.ignored_unicodes
         )
 
         u_list = uni_info.get("punctuation", [])
         self.unicodes_punctuation = (
-            set(u_list + cased(u_list)) - self.info.ignored_unicodes
+            set(u_list + self.cased(u_list)) - self.info.ignored_unicodes
         )
 
         # Additional sets to speed up later calculations
@@ -124,6 +102,27 @@ unicodes_any
         )
 
         self.scan_ok = False
+
+    @property
+    def ui(self):
+        return self.info.ui
+
+    def cased(self, codepoint_list):
+        """
+        Return a list with its Unicode case mapping toggled. If a codepoint has
+        no lowercase or uppercase mapping, it is dropped from the list.
+
+        :param codepoint_list: The list of integer codepoints.
+        :type codepoint_list: list
+        """
+        result = []
+        for c in codepoint_list:
+            self.ui.unicode = c
+            if self.ui.lc_mapping:
+                result.append(self.ui.lc_mapping)
+            elif self.ui.uc_mapping:
+                result.append(self.ui.uc_mapping)
+        return list(set(result))
 
     def fill_from_default_orthography(self):
         """
@@ -414,7 +413,14 @@ class OrthographyInfo(object):
     recommended to instantiate it once and then reuse it.
     """
 
-    def __init__(self):
+    def __init__(self, ui=None):
+        # We need a UniInfo object
+        if ui is None:
+            from jkUnicode import UniInfo
+            self.ui = UniInfo(0)
+        else:
+            self.ui = ui
+
         data_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "json"
         )
@@ -661,9 +667,11 @@ class OrthographyInfo(object):
         for ot in otlist:
             print("\n%s" % ot.name)
             for u in sorted(list(getattr(ot, attr))):
-                ui.unicode = u
+                self.ui.unicode = u
                 print(
-                    "    0x%04X\t%s\t%s" % (u, ui.glyphname, ui.name.title())
+                    "    0x%04X\t%s\t%s" % (
+                        u, self.ui.glyphname, self.ui.name.title()
+                    )
                 )
 
     def report_supported_minimum_inclusive(self):
