@@ -599,7 +599,7 @@ class UnicodeInfoWindow:
             glyph_list = []
 
         base = jkUnicode.get_expanded_glyph_list(
-            orthography.unicodes_base
+            orthography.unicodes_base, ui=self.info
         )
         base = self.get_extra_names(font, base)
         glyph_list.extend([
@@ -608,7 +608,7 @@ class UnicodeInfoWindow:
         ])
 
         punc = jkUnicode.get_expanded_glyph_list(
-            orthography.unicodes_punctuation
+            orthography.unicodes_punctuation, ui=self.info
         )
         punc = self.get_extra_names(font, punc)
         if markers:
@@ -621,7 +621,7 @@ class UnicodeInfoWindow:
 
         if self.include_optional:
             optn = jkUnicode.get_expanded_glyph_list(
-                orthography.unicodes_optional
+                orthography.unicodes_optional, ui=self.info
             )
             optn = self.get_extra_names(font, optn)
             if markers:
