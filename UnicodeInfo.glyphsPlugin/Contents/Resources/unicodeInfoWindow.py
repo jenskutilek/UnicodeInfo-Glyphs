@@ -127,13 +127,13 @@ class UnicodeInfoWindow(object):
         if manual_update:
             y += 24
             self.w.block_add_missing = Button(
-                (-282, y - 6, -222, 25),
+                (-290, y - 6, -226, 25),
                 "Fill Block",
                 callback=self.addMissingBlock,
                 sizeStyle="small",
             )
             self.w.orthography_add_missing = Button(
-                (-214, y - 6, -154, 25),
+                (-218, y - 6, -154, 25),
                 "Fill Orth.",
                 callback=self.addMissingOrthography,
                 sizeStyle="small",
