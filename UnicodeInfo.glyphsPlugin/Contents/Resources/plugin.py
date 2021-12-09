@@ -229,14 +229,10 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         font.fontView.glyphsGroupViewController().update()
 
     @objc.python_method
-    def _addMissingBlock(self, block):
-        font = self.font_fallback
-        if font is None:
-            return
-
+    def add_glyphs_to_font(self, glyph_names, font):
         glyph_list = [
             n
-            for n in self.get_block_glyph_list(block, font, False)
+            for n in glyph_names
             if n not in font.glyphs
         ]
         print("Adding glyphs:", " ".join(glyph_list))
@@ -245,20 +241,22 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         font.enableUpdateInterface()
 
     @objc.python_method
+    def _addMissingBlock(self, block):
+        font = self.font_fallback
+        if font is None:
+            return
+
+        glyph_list = self.get_block_glyph_list(block, font, False)
+        self.add_glyphs_to_font(glyph_list, font)
+
+    @objc.python_method
     def _addMissingOrthography(self, orthography):
         font = self.font_fallback
         if font is None:
             return
 
-        glyph_list = [
-            n
-            for n in self.get_orthography_glyph_list(orthography, font, False)
-            if n not in font.glyphs
-        ]
-        print("Adding glyphs:", " ".join(glyph_list))
-        font.disableUpdateInterface()
-        [font.glyphs.append(GSGlyph(n)) for n in glyph_list]
-        font.enableUpdateInterface()
+        glyph_list = self.get_orthography_glyph_list(orthography, font, False)
+        self.add_glyphs_to_font(glyph_list, font)
 
     @objc.python_method
     def _saveGlyphSelection(self, font=None):
