@@ -603,7 +603,7 @@ class UnicodeInfoWindow(object):
         )
         base = self.get_extra_names(font, base)
         glyph_list.extend([
-            self.get_glyphname_for_unicode(u)
+            self.get_glyphname_for_unicode(u)[0]
             for u, n in sorted(base)
         ])
 
@@ -615,7 +615,7 @@ class UnicodeInfoWindow(object):
             glyph_list.append("_PUNCT_")
         if punc:
             glyph_list.extend([
-                self.get_glyphname_for_unicode(u)
+                self.get_glyphname_for_unicode(u)[0]
                 for u, n in sorted(punc)
             ])
 
@@ -629,9 +629,9 @@ class UnicodeInfoWindow(object):
             if optn:
                 glyph_list.extend(
                     [
-                        self.get_glyphname_for_unicode(u)
+                        self.get_glyphname_for_unicode(u)[0]
                         for u, n in sorted(optn)
-                        if self.get_glyphname_for_unicode(u) not in glyph_list
+                        if self.get_glyphname_for_unicode(u)[0] not in glyph_list
                     ]
                 )
         if markers:
