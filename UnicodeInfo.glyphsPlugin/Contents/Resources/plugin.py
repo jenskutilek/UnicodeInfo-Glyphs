@@ -10,11 +10,50 @@ from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from unicodeInfoWindow import UnicodeInfoWindow
 
 
-class GlyphsUnicodeInfoWindow(UnicodeInfoWindow):
-    pass
+def add_glyphs_to_font(glyph_names, font):
+    glyph_list = [
+        n
+        for n in glyph_names
+        if n not in font.glyphs
+    ]
+    # print("Adding glyphs:", " ".join(glyph_list))
+    font.disableUpdateInterface()
+    glyphs = [GSGlyph(n) for n in glyph_list]
+    font.glyphs.extend(glyphs)
+    font.enableUpdateInterface()
+    set_selection(font, glyph_names, deselect=True)
 
 
-class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
+def set_filter(font=None, glyph_names=None):
+    if glyph_names is None:
+        glyph_names = []
+    # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
+    GSSortDescriptorNameList = objc.lookUpClass("GSSortDescriptorNameList")
+    glyphsArrayController = font.fontView.glyphsArrayController()
+    sortDescriptor = (
+        GSSortDescriptorNameList.alloc().initWithKey_ascending_(
+            "name", True
+        )
+    )
+    sortDescriptor.setReferenceList_(glyph_names)
+    glyphsArrayController.setSortDescriptors_([sortDescriptor])
+    # FIXME: Missing glyphs for a Unicode block can't be shown by sorting
+    #        the font view.
+
+
+def set_selection(font, glyph_names, deselect=False):
+    if deselect:
+        for g in font.glyphs:
+            g.selected = False
+    for g in glyph_names:
+        font.glyphs[g].selected = True
+
+
+# class GlyphsUnicodeInfoWindow(UnicodeInfoWindow):
+#     pass
+
+
+class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     @objc.python_method
     def settings(self):
         self.name = Glyphs.localize(
@@ -183,23 +222,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             font.selection = [font[glyphname]]
 
     @objc.python_method
-    def set_filter(self, font=None, glyph_names=None):
-        if glyph_names is None:
-            glyph_names = []
-        # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
-        GSSortDescriptorNameList = objc.lookUpClass("GSSortDescriptorNameList")
-        glyphsArrayController = font.fontView.glyphsArrayController()
-        sortDescriptor = (
-            GSSortDescriptorNameList.alloc().initWithKey_ascending_(
-                "name", True
-            )
-        )
-        sortDescriptor.setReferenceList_(glyph_names)
-        glyphsArrayController.setSortDescriptors_([sortDescriptor])
-        # FIXME: Missing glyphs for a Unicode block can't be shown by sorting
-        #        the font view.
-
-    @objc.python_method
     def set_sidebar_filter(self, glyph_names):
         # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
         GSSidebarItem = objc.lookUpClass("GSSidebarItem")
@@ -229,25 +251,13 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         font.fontView.glyphsGroupViewController().update()
 
     @objc.python_method
-    def add_glyphs_to_font(self, glyph_names, font):
-        glyph_list = [
-            n
-            for n in glyph_names
-            if n not in font.glyphs
-        ]
-        print("Adding glyphs:", " ".join(glyph_list))
-        font.disableUpdateInterface()
-        [font.glyphs.append(GSGlyph(n)) for n in glyph_list]
-        font.enableUpdateInterface()
-
-    @objc.python_method
     def _addMissingBlock(self, block):
         font = self.font_fallback
         if font is None:
             return
 
         glyph_list = self.get_block_glyph_list(block, font, False)
-        self.add_glyphs_to_font(glyph_list, font)
+        add_glyphs_to_font(glyph_list, font)
 
     @objc.python_method
     def _addMissingOrthography(self, orthography):
@@ -256,7 +266,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             return
 
         glyph_list = self.get_orthography_glyph_list(orthography, font, False)
-        self.add_glyphs_to_font(glyph_list, font)
+        add_glyphs_to_font(glyph_list, font)
 
     @objc.python_method
     def _saveGlyphSelection(self, font=None):
@@ -264,7 +274,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
 
     @objc.python_method
     def _showGlyphList(self, font, glyph_list):
-        self.set_filter(font, glyph_list)
+        set_filter(font, glyph_list)
 
     @objc.python_method
     def _restoreGlyphSelection(self, font=None):

@@ -9,7 +9,7 @@ from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
 
 
-class UnicodeInfoWindow(object):
+class UnicodeInfoWindow:
     @objc.python_method
     def build_window(self, manual_update=False):
         from vanilla import (
@@ -172,8 +172,8 @@ class UnicodeInfoWindow(object):
             self.w.reset_filter.enable(False)
 
         if self.orth_present:
-            self.w.orthography_list.enable(False)
-            self.w.show_orthography.enable(False)
+            # self.w.orthography_list.enable(False)
+            # self.w.show_orthography.enable(False)
             self.w.orthography_status.enable(False)
             # if self.font is None:
             #     self.w.include_optional.enable(False)
@@ -326,7 +326,7 @@ class UnicodeInfoWindow(object):
 
     @objc.python_method
     def resetFilter(self, sender=None):
-        self.w.reset_filter.enable(True)
+        self.w.reset_filter.enable(False)
         self.w.block_add_missing.enable(False)
         self.w.orthography_add_missing.enable(False)
         self._resetFilter(sender)
