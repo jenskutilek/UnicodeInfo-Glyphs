@@ -35,6 +35,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     @objc.python_method
     def updateInfo(self, sender):
         font = Glyphs.font
+        self.font = font
         uni = None
 
         # We’re in the Edit View
