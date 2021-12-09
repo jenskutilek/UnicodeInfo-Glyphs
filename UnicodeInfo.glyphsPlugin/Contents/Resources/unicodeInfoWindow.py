@@ -317,6 +317,7 @@ class UnicodeInfoWindow(object):
 
     @objc.python_method
     def addMissingOrthography(self, sender=None):
+        # Add glyphs that are missing for an orthography
         # Get selected orthography
         i = self.w.orthography_list.get()
         if i > -1:
@@ -348,11 +349,14 @@ class UnicodeInfoWindow(object):
                 self.w.orthography_status.set(is_supported)
                 self.w.orthography_add_missing.enable(not is_supported)
                 if not is_supported:
-                    missing = self.ortho_list[i].missing_base | self.ortho_list[i].missing_punctuation
+                    missing = (
+                        self.ortho_list[i].missing_base
+                        | self.ortho_list[i].missing_punctuation
+                    )
                     if self.include_optional:
                         missing |= self.ortho_list[i].missing_optional
                     print(
-                        f"{len(missing)} glyphs missing from orthography "
+                        f"{len(missing)} codepoints missing from orthography "
                         f"'{self.ortho_list[i].name}':\n{missing}"
                     )
 
@@ -598,7 +602,10 @@ class UnicodeInfoWindow(object):
             orthography.unicodes_base
         )
         base = self.get_extra_names(font, base)
-        glyph_list.extend([t[1] for t in sorted(base)])
+        glyph_list.extend([
+            self.get_glyphname_for_unicode(u)
+            for u, n in sorted(base)
+        ])
 
         punc = jkUnicode.get_expanded_glyph_list(
             orthography.unicodes_punctuation
@@ -607,7 +614,10 @@ class UnicodeInfoWindow(object):
         if markers:
             glyph_list.append("_PUNCT_")
         if punc:
-            glyph_list.extend([t[1] for t in sorted(punc)])
+            glyph_list.extend([
+                self.get_glyphname_for_unicode(u)
+                for u, n in sorted(punc)
+            ])
 
         if self.include_optional:
             optn = jkUnicode.get_expanded_glyph_list(
@@ -619,9 +629,9 @@ class UnicodeInfoWindow(object):
             if optn:
                 glyph_list.extend(
                     [
-                        t[1]
-                        for t in sorted(optn)
-                        if not t[1] in glyph_list
+                        self.get_glyphname_for_unicode(u)
+                        for u, n in sorted(optn)
+                        if self.get_glyphname_for_unicode(u) not in glyph_list
                     ]
                 )
         if markers:
