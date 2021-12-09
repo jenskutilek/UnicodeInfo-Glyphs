@@ -33,10 +33,6 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         Glyphs.menu[WINDOW_MENU].append(newMenuItem)
 
     @objc.python_method
-    def __del__(self):
-        Glyphs.removeCallback(self.update)
-
-    @objc.python_method
     def updateInfo(self, sender):
         font = Glyphs.font
         uni = None
@@ -48,7 +44,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
                 glyph = font.selectedLayers[0].parent
                 self.glyph_name = glyph.name
                 self.glyph = glyph
-                uni = self.get_unicode_for_glyph(glyph)
+                uni = self.get_unicode_for_glyphname(self.glyph_name)
             else:
                 self.glyph_name = None
                 self.glyph = None
@@ -59,16 +55,15 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
                 glyph = font.selection[0]
                 self.glyph_name = glyph.name
                 self.glyph = glyph
-                uni = self.get_unicode_for_glyph(glyph)
+                uni = self.get_unicode_for_glyphname(self.glyph_name)
             else:
                 self.glyph_name = None
                 self.glyph = None
 
         if self.unicode == uni:
             return
-        else:
-            self.unicode = uni
 
+        self.unicode = uni
         self._updateInfo(u=self.unicode, fake=False)
 
     # Overrides for the UnicodeInfoWindow base class
@@ -114,20 +109,20 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     @objc.python_method
     def get_glyphname_for_unicode(self, value=None):
         if value is None:
-            return None
+            return None, None
 
         font = self.font_fallback
         if font is None:
-            return None
+            return None, None
 
         if font.disablesNiceNames:
             name = getGlyphnameForUnicode(value)
         else:
             g = GSGlyph()
-            g.unicode = value
+            g.unicode = "%04X" % value
             g.updateGlyphInfo(changeName=True)
             name = g.name
-        return name
+        return name, None
 
     @objc.python_method
     def get_unicode_for_glyphname(self, name=None):
@@ -142,19 +137,21 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             u = getUnicodeForGlyphname(name)
         else:
             u = font.glyphs[name].glyphInfo.unicode
+            if u is not None:
+                u = int(u, 16)
         return u
 
-    @objc.python_method
-    def get_unicode_for_glyph(self, glyph):
-        uni = glyph.unicode
-        if uni is None:
-            if "." in glyph.name:
-                base, suffix = glyph.name.split(".", 1)
-                if base in glyph.parent.glyphs:
-                    uni = glyph.parent.glyphs[base].unicode
-        if uni is not None:
-            uni = int(uni, 16)
-        return uni
+    # @objc.python_method
+    # def get_unicode_for_glyph(self, glyph):
+    #     uni = glyph.unicode
+    #     if uni is None:
+    #         if "." in glyph.name:
+    #             base, suffix = glyph.name.split(".", 1)
+    #             if base in glyph.parent.glyphs:
+    #                 uni = glyph.parent.glyphs[base].unicode
+    #     if uni is not None:
+    #         uni = int(uni, 16)
+    #     return uni
 
     @objc.python_method
     def toggleCase(self, sender=None):
@@ -164,7 +161,7 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         if self.case is None:
             return
 
-        glyphname = self.get_glyphname_for_unicode(self.case)
+        glyphname, _ = self.get_glyphname_for_unicode(self.case)
         if glyphname is None:
             return
 
@@ -211,6 +208,34 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             newItem, len(filters.subItems())
         )
         filterController.didChangeSidebarItem_(filters)
+
+    @objc.python_method
+    def _resetFilter(self, sender=None):
+        # Reset the sorting from set_filter
+        font = self.font_fallback
+        if font is None:
+            return
+
+        # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/13
+        font.fontView.glyphsGroupViewController().update()
+
+    @objc.python_method
+    def _addMissingBlock(self, block):
+        font = self.font_fallback
+        if font is None:
+            return
+
+        glyph_list = self.get_block_glyph_list(block, font, False)
+        print(glyph_list)
+
+    @objc.python_method
+    def _addMissingOrthography(self, orthography):
+        font = self.font_fallback
+        if font is None:
+            return
+
+        glyph_list = self.get_orthography_glyph_list(orthography, font, False)
+        print(glyph_list)
 
     @objc.python_method
     def _saveGlyphSelection(self, font=None):
