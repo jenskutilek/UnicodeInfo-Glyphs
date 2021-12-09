@@ -175,10 +175,10 @@ class UnicodeInfoWindow(object):
             self.w.orthography_list.enable(False)
             self.w.show_orthography.enable(False)
             self.w.orthography_status.enable(False)
-            if self.font is None:
-                self.w.include_optional.enable(False)
-            else:
-                self.w.include_optional.enable(True)
+            # if self.font is None:
+            #     self.w.include_optional.enable(False)
+            # else:
+            #     self.w.include_optional.enable(True)
 
     @objc.python_method
     def build(self):
