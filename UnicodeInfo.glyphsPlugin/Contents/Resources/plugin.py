@@ -124,9 +124,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     @property
     def font_glyphs(self):
-        if self._font is not None:
-            return self._font.glyphs
-        return []
+        return self.font_fallback.glyphs
 
     @property
     def glyph_font(self):
@@ -148,7 +146,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     def glyphs_for_font(self, font):
         if font is None:
             return {}
-        return self._font.glyphs
+        return font.glyphs
 
     @objc.python_method
     def gnful_name(self, u):
@@ -220,6 +218,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         else:
             # We’re in the Font view
             font.selection = [font[glyphname]]
+        self.updateInfo()
 
     @objc.python_method
     def set_sidebar_filter(self, glyph_names):
