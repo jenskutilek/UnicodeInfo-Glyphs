@@ -3,11 +3,10 @@
 import objc
 
 from AppKit import NSMenuItem
-from Foundation import NSMutableDictionary
-from GlyphsApp import Glyphs, UPDATEINTERFACE, WINDOW_MENU
+from GlyphsApp import Glyphs, GSGlyph, WINDOW_MENU
 from GlyphsApp.plugins import GeneralPlugin
 
-from jkUnicode.aglfn import getGlyphnameForUnicode
+from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from unicodeInfoWindow import UnicodeInfoWindow
 
 
@@ -19,13 +18,13 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     @objc.python_method
     def settings(self):
         self.name = Glyphs.localize(
-            {"en": u"Unicode Info", "de": u"Unicode-Info"}
+            {"en": "Unicode Info", "de": "Unicode-Info"}
         )
 
     def showWindow_(self, sender):
         self.glyph = None
-        self.build_window()
-        Glyphs.addCallback(self.update, UPDATEINTERFACE)
+        self.build_window(manual_update=True)
+        # Glyphs.addCallback(self.update, UPDATEINTERFACE)
         self.started()
 
     @objc.python_method
@@ -38,9 +37,8 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
         Glyphs.removeCallback(self.update)
 
     @objc.python_method
-    def update(self, sender):
-        # Extract font from sender
-        font = sender.object().parent
+    def updateInfo(self, sender):
+        font = Glyphs.font
         uni = None
 
         # We’re in the Edit View
@@ -113,21 +111,38 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
     def gnful_name(self, u):
         return None
 
-    # def get_unicode_for_glyphname(self, name=None):
-    #     if name is None:
-    #         return None
-    #     # First try jkUnicode
-    #     u = getUnicodeForGlyphname(name)
-    #     if u is None:
-    #         # then try GNFUL
-    #         u = getGlyphNameComponentUnicode(name)
-    #         if u is not None:
-    #             u = u[1]
-    #     return u
+    @objc.python_method
+    def get_glyphname_for_unicode(self, value=None):
+        if value is None:
+            return None
+
+        font = self.font_fallback
+        if font is None:
+            return None
+
+        if font.disablesNiceNames:
+            name = getGlyphnameForUnicode(value)
+        else:
+            g = GSGlyph()
+            g.unicode = value
+            g.updateGlyphInfo(changeName=True)
+            name = g.name
+        return name
 
     @objc.python_method
-    def get_glyphname_for_unicode(self, u):
-        return getGlyphnameForUnicode(u)
+    def get_unicode_for_glyphname(self, name=None):
+        if name is None:
+            return None
+
+        font = self.font_fallback
+        if font is None:
+            return None
+
+        if font.disablesNiceNames:
+            u = getUnicodeForGlyphname(name)
+        else:
+            u = font.glyphs[name].glyphInfo.unicode
+        return u
 
     @objc.python_method
     def get_unicode_for_glyph(self, glyph):
@@ -162,30 +177,48 @@ class UnicodeInfo(GeneralPlugin, GlyphsUnicodeInfoWindow):
             font.selection = [font[glyphname]]
 
     @objc.python_method
-    def set_filter(self, glyph_names):
-        font = self.font_fallback
-        if font is None:
-            return
-
-        filterController = font.fontView.glyphsGroupViewController()
-        glyphGroups = filterController.glyphGroups()[2]["subGroup"]
-
-        if "Unicode Info" in glyphGroups:
-            flt = glyphGroups["Unicode Info"]
-        else:
-            flt = NSMutableDictionary.dictionaryWithObjectsAndKeys_(
-                True, "isLeaf",
-                "Unicode Info", "name",
-                glyph_names, "list",
-                "CustomFilterListTemplate", "icon",
-                None
+    def set_filter(self, font=None, glyph_names=None):
+        if glyph_names is None:
+            glyph_names = []
+        # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
+        GSSortDescriptorNameList = objc.lookUpClass("GSSortDescriptorNameList")
+        glyphsArrayController = font.fontView.glyphsArrayController()
+        sortDescriptor = (
+            GSSortDescriptorNameList.alloc().initWithKey_ascending_(
+                "name", True
             )
-            glyphGroups.append(flt)
-            filterController.saveCustomFilters()
+        )
+        sortDescriptor.setReferenceList_(glyph_names)
+        glyphsArrayController.setSortDescriptors_([sortDescriptor])
+        # FIXME: Missing glyphs for a Unicode block can't be shown by sorting
+        #        the font view.
+
+    @objc.python_method
+    def set_sidebar_filter(self, glyph_names):
+        # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
+        GSSidebarItem = objc.lookUpClass("GSSidebarItem")
+        font = Glyphs.font
+        filterController = font.fontView.glyphsGroupViewController()
+        glyphGroups = filterController.glyphGroups()
+        filters = glyphGroups[3]
+        print(filters)
+        newItem = GSSidebarItem.new()
+        newItem.setName_("MyListFilter1")
+        newItem.setCoverage_(["A", "B"])
+        newItem.setIconName_("CustomFilterListTemplate")
+        newItem.setItemType_(3)
+        filters.insertObject_inSubItemsAtIndex_(
+            newItem, len(filters.subItems())
+        )
+        filterController.didChangeSidebarItem_(filters)
 
     @objc.python_method
     def _saveGlyphSelection(self, font=None):
         pass
+
+    @objc.python_method
+    def _showGlyphList(self, font, glyph_list):
+        self.set_filter(font, glyph_list)
 
     @objc.python_method
     def _restoreGlyphSelection(self, font=None):

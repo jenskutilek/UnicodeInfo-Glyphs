@@ -9,7 +9,7 @@ from jkUnicode.uniName import uniName
 
 class UnicodeInfoWindow(object):
     @objc.python_method
-    def build_window(self):
+    def build_window(self, manual_update=False):
         from vanilla import (
             Button,
             CheckBox,
@@ -25,10 +25,14 @@ class UnicodeInfoWindow(object):
             self.orth_present = False
 
         width = 320
+        height = 116
+
         if self.orth_present:
-            height = 153
-        else:
-            height = 116
+            height += 37
+        if manual_update:
+            # Make room for an additional button
+            height += 24
+
         ini_height = height - 16
         axis = 50
 
@@ -118,6 +122,15 @@ class UnicodeInfoWindow(object):
                 callback=self.includeOptional,
                 sizeStyle="small",
             )
+        if manual_update:
+            y += 22
+            self.w.manual_update = Button(
+                (-60, y - 6, -10, 25),
+                "Query",
+                callback=self.updateInfo,
+                sizeStyle="small",
+            )
+            y += 20
 
         self.info = jkUnicode.UniInfo(0)
         self.unicode = None
@@ -243,6 +256,14 @@ class UnicodeInfoWindow(object):
         return list(set(uni_name_tuples))
 
     @objc.python_method
+    def get_glyphname_for_unicode(self, value=None):
+        if value is None:
+            return None
+        # from jkUnicode
+        u = getGlyphnameForUnicode(value)
+        return u
+
+    @objc.python_method
     def get_unicode_for_glyphname(self, name=None):
         if name is None:
             return None
@@ -291,6 +312,11 @@ class UnicodeInfoWindow(object):
             self.w.show_block.enable(True)
             # Show supported status for block
             # self.w.orthography_status.set(is_supported)
+
+    @objc.python_method
+    def updateInfo(self, sender):
+        # Is called when the info is updated manually
+        pass
 
     @objc.python_method
     def _updateInfo(self, u=None, fake=False):
@@ -461,24 +487,6 @@ class UnicodeInfoWindow(object):
         self.include_optional = sender.get()
         self._updateOrthographies()
 
-    # @objc.python_method
-    # def _saveGlyphSelection(self, font=None):
-    #     if font is None:
-    #         font = self.font
-    #     if font:
-    #         self.selectedGlyphs = font.selectedGlyphNames
-    #     else:
-    #         self.selectedGlyphs = ()
-
-    # @objc.python_method
-    # def _restoreGlyphSelection(self, font=None):
-    #     if font is None:
-    #         if self.font is None:
-    #             return
-
-    #         font = self.font
-    #     font.selectedGlyphNames = self.selectedGlyphs
-
     @objc.python_method
     def showOrthography(self, sender=None):
         # Callback for the "Show" button of the Orthographies list
@@ -528,7 +536,7 @@ class UnicodeInfoWindow(object):
                     )
             glyph_list.append("_END_")
             self._saveGlyphSelection(font)
-            font.glyphOrder = glyph_list
+            self._showGlyphList(font, glyph_list)
             self._restoreGlyphSelection(font)
         # Set the selection to the same index as before
         self.selectOrthography(sender=None, index=i)
@@ -553,7 +561,7 @@ class UnicodeInfoWindow(object):
             block = items[i]
             glyph_list = ["_START_"]
             tuples = [
-                (cp, getGlyphnameForUnicode(cp))
+                (cp, self.get_glyphname_for_unicode(cp))
                 for cp in get_codepoints(block)
                 if show_Reserved or cp in uniName
             ]
@@ -562,7 +570,7 @@ class UnicodeInfoWindow(object):
             glyph_list.extend([n[1] for n in names])
             glyph_list.append("_END_")
             self._saveGlyphSelection(font)
-            font.glyphOrder = glyph_list
+            self._showGlyphList(font, glyph_list)
             self._restoreGlyphSelection(font)
 
     @objc.python_method
