@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from jkUnicode.uniBlock import get_block
-from jkUnicode.uniName import uniName
 from jkUnicode.uniNiceName import nice_name_rules
 from jkUnicode.uniCat import uniCat
 from jkUnicode.uniCase import uniUpperCaseMapping, uniLowerCaseMapping
