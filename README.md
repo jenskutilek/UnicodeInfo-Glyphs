@@ -37,6 +37,8 @@ If you check **Include optional characters,** those will be taken into account f
 
 - **Fill Orth.** adds placeholder glyphs for all missing characters of the selected orthography to your font.
 
+Whenever you select an orthography that is not fully supported, a list of missing codepoints is printed to the console of the _Macro_ panel.
+
 ## Known issues
 
 - When "custom naming" is active, the results of the _Fill_ buttons are unreliable and may lead to duplicate glyphs.
