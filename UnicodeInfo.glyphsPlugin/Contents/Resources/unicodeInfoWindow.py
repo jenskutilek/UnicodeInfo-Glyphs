@@ -326,8 +326,11 @@ class UnicodeInfoWindow:
     @objc.python_method
     def resetFilter(self, sender=None):
         self.w.reset_filter.enable(False)
+        self.w.show_orthography.enable(True)
+        self.w.show_block.enable(True)
         self.w.block_add_missing.enable(False)
         self.w.orthography_add_missing.enable(False)
+        self.filtered = False
         self._resetFilter(sender)
 
     @objc.python_method
@@ -399,7 +402,7 @@ class UnicodeInfoWindow:
             self.w.block_status.set(False)
             self.w.block_add_missing.enable(False)
         else:
-            self.w.show_block.enable(True)
+            self.w.show_block.enable(not self.filtered)
             # Show supported status for block
             font = self.font_fallback
             if font is None:
@@ -537,7 +540,7 @@ class UnicodeInfoWindow:
             self.w.show_orthography.enable(False)
         else:
             self.w.orthography_list.enable(True)
-            self.w.show_orthography.enable(True)
+            self.w.show_orthography.enable(not self.filtered)
             # If the old name is in the new list, select it
             if old_sel is not None:
                 names = self.w.orthography_list.getItems()
@@ -663,6 +666,9 @@ class UnicodeInfoWindow:
         # Set the selection to the same index as before
         self.selectOrthography(sender=None, index=i)
         self.w.reset_filter.enable(True)
+        self.filtered = True
+        self.w.show_block.enable(False)
+        self.w.show_orthography.enable(False)
 
     @objc.python_method
     def get_block_glyph_list(self, block, font, markers=True, reserved=True):
@@ -711,6 +717,9 @@ class UnicodeInfoWindow:
             self._showGlyphList(font, glyph_list)
             self._restoreGlyphSelection(font)
         self.w.reset_filter.enable(True)
+        self.filtered = True
+        self.w.show_block.enable(False)
+        self.w.show_orthography.enable(False)
 
     @objc.python_method
     def toggleCase(self, sender=None):

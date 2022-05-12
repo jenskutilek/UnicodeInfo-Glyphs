@@ -62,6 +62,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     def showWindow_(self, sender):
         self.glyph = None
+        self.filtered = False
         self.build_window(manual_update=True)
         # Glyphs.addCallback(self.update, UPDATEINTERFACE)
         self.started()
