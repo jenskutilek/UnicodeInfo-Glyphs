@@ -494,7 +494,7 @@ class UnicodeInfoWindow:
             items = self.w.block_list.getItems()
             if block in items:
                 self.w.block_list.set(items.index(block))
-                self.w.show_block.enable(True)
+                self.w.show_block.enable(not self.filtered)
             else:
                 self.w.block_list.set(0)
                 self.w.show_block.enable(False)
