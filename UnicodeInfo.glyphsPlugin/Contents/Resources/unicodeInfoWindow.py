@@ -356,7 +356,8 @@ class UnicodeInfoWindow:
                         missing |= self.ortho_list[i].missing_optional
                     print(
                         f"{len(missing)} codepoints missing from orthography "
-                        f"'{self.ortho_list[i].name}':\n{missing}"
+                        f"'{self.ortho_list[i].name}':\n"
+                        f"{[hex(m) for m in missing]}"
                     )
 
         else:
