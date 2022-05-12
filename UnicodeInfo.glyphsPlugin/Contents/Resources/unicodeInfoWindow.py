@@ -200,7 +200,7 @@ class UnicodeInfoWindow:
                 for g in self.font_glyphs:
                     if g.unicodes:
                         cmap |= self.glyph_unicodes(g)
-                self.ortho.cmap = cmap
+                self.ortho.cmap = {u: None for u in cmap}
 
     @property
     def font_fallback(self):
