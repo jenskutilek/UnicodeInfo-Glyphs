@@ -13,17 +13,17 @@
 	<key>CFBundleName</key>
 	<string>UnicodeInfo</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>4</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/jenskutilek/UnicodeInfo-Glyphs/master/UnicodeInfo.glyphsPalette/Contents/Info.plist</string>
 	<key>productPageURL</key>
 	<string>https://github.com/jenskutilek/UnicodeInfo-Glyphs</string>
 	<key>productReleaseNotes</key>
-	<string>Alpha version</string>
+	<string>Initial release</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright, Jens Kutilek, 2017-2021</string>
+	<string>Copyright, Jens Kutilek, 2016-2022</string>
 	<key>NSPrincipalClass</key>
 	<string>UnicodeInfo</string>
 	<key>PyMainFileNames</key>
