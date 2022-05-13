@@ -333,8 +333,8 @@ class UnicodeInfoWindow:
         self.w.show_block.enable(True)
         self.w.block_add_missing.enable(False)
         self.w.orthography_add_missing.enable(False)
-        self.filtered = False
         self._resetFilter(sender)
+        self.filtered = False
 
     @objc.python_method
     def selectOrthography(self, sender=None, index=-1):
