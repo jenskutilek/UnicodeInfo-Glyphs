@@ -18,6 +18,7 @@ class UnicodeInfoWindow:
             PopUpButton,
             TextBox,
         )
+
         try:
             from jkUnicode.orthography import OrthographyInfo
 
