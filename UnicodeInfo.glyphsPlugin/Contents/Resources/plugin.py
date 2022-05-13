@@ -63,6 +63,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     def showWindow_(self, sender):
         self.glyph = None
         self.filtered = False
+        self.in_font_view = False
         self.build_window(manual_update=True)
         # Glyphs.addCallback(self.update, UPDATEINTERFACE)
         self.started()
@@ -88,6 +89,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
         # We’re in the Edit View
         if hasattr(font, "currentTab") and font.currentTab:
+            self.in_font_view = False
             # Check whether glyph is being edited
             if len(font.selectedLayers) == 1:
                 glyph = font.selectedLayers[0].parent
@@ -100,6 +102,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
         # We’re in the Font view
         else:
+            self.in_font_view = True
             if font and len(font.selection) == 1:
                 glyph = font.selection[0]
                 self.glyph_name = glyph.name

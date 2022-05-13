@@ -402,7 +402,7 @@ class UnicodeInfoWindow:
             self.w.block_status.set(False)
             self.w.block_add_missing.enable(False)
         else:
-            self.w.show_block.enable(not self.filtered)
+            self.w.show_block.enable(self.in_font_view and not self.filtered)
             # Show supported status for block
             font = self.font_fallback
             if font is None:
@@ -494,7 +494,9 @@ class UnicodeInfoWindow:
             items = self.w.block_list.getItems()
             if block in items:
                 self.w.block_list.set(items.index(block))
-                self.w.show_block.enable(not self.filtered)
+                self.w.show_block.enable(
+                    self.in_font_view and not self.filtered
+                )
             else:
                 self.w.block_list.set(0)
                 self.w.show_block.enable(False)
@@ -540,7 +542,9 @@ class UnicodeInfoWindow:
             self.w.show_orthography.enable(False)
         else:
             self.w.orthography_list.enable(True)
-            self.w.show_orthography.enable(not self.filtered)
+            self.w.show_orthography.enable(
+                self.in_font_view and not self.filtered
+            )
             # If the old name is in the new list, select it
             if old_sel is not None:
                 names = self.w.orthography_list.getItems()
