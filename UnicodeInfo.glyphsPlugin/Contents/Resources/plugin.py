@@ -225,25 +225,6 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.updateInfo()
 
     @objc.python_method
-    def set_sidebar_filter(self, glyph_names):
-        # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
-        GSSidebarItem = objc.lookUpClass("GSSidebarItem")
-        font = Glyphs.font
-        filterController = font.fontView.glyphsGroupViewController()
-        glyphGroups = filterController.glyphGroups()
-        filters = glyphGroups[3]
-        print(filters)
-        newItem = GSSidebarItem.new()
-        newItem.setName_("MyListFilter1")
-        newItem.setCoverage_(["A", "B"])
-        newItem.setIconName_("CustomFilterListTemplate")
-        newItem.setItemType_(3)
-        filters.insertObject_inSubItemsAtIndex_(
-            newItem, len(filters.subItems())
-        )
-        filterController.didChangeSidebarItem_(filters)
-
-    @objc.python_method
     def _resetFilter(self, sender=None):
         # Reset the sorting from set_filter
         font = self.font_fallback
