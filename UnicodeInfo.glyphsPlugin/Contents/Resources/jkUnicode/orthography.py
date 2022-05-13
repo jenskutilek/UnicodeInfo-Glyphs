@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Set
 IGNORED_UNICODES = [
     # Minute and second appear in lots of language definitions in CLDR, but are
     # not in very many fonts.
+    0x2011,  # non-breaking hyphen
     0x2032,  # minute
     0x2033,  # second
 ]
