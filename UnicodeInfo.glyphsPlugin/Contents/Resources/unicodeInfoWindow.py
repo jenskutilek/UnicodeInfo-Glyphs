@@ -314,6 +314,7 @@ class UnicodeInfoWindow:
         if i > -1:
             blk = self.w.block_list.getItems()[i]
             self._addMissingBlock(blk)
+            self.updateInfo()
 
     @objc.python_method
     def addMissingOrthography(self, sender=None):
@@ -323,6 +324,7 @@ class UnicodeInfoWindow:
         if i > -1:
             ort = self.ortho_list[i]
             self._addMissingOrthography(ort)
+            self._updateOrthographies()
 
     @objc.python_method
     def resetFilter(self, sender=None):
