@@ -530,12 +530,12 @@ class OrthographyInfo:
                 o.forget_cmap()
         else:
             self._cmap = value
-            newCodepoints = set(value.keys())
+            newCodepoints = set(value)
             if newCodepoints != self._codepoints:
                 self._codepoints = newCodepoints
                 for o in self.orthographies:
                     o.scan_cmap()
-    
+
     @property
     def codepoints(self) -> Set[int]:
         return self._codepoints
