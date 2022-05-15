@@ -44,7 +44,7 @@ class UnicodeInfoWindow:
             minSize=(width, height),
             maxSize=(530, height),
         )
-
+        self.w.bind("close", self.windowClosed)
         y = 10
         self.w.uni_name_label = TextBox(
             (8, y, axis - 10, 20), "Name", sizeStyle="small"
@@ -144,12 +144,12 @@ class UnicodeInfoWindow:
                 callback=self.resetFilter,
                 sizeStyle="small",
             )
-            self.w.manual_update = Button(
-                (-60, y - 6, -10, 25),
-                "Query",
-                callback=self.updateInfo,
-                sizeStyle="small",
-            )
+            # self.w.manual_update = Button(
+            #     (-60, y - 6, -10, 25),
+            #     "Query",
+            #     callback=self.updateInfo,
+            #     sizeStyle="small",
+            # )
 
         self.info = UniInfo(0)
         self.unicode = None
@@ -182,6 +182,10 @@ class UnicodeInfoWindow:
 
     @objc.python_method
     def build(self):
+        raise NotImplementedError
+
+    @objc.python_method
+    def windowClosed(self, sender):
         raise NotImplementedError
 
     @objc.python_method
@@ -360,11 +364,11 @@ class UnicodeInfoWindow:
                     )
                     if self.include_optional:
                         missing |= self.ortho_list[i].missing_optional
-                    print(
-                        f"{len(missing)} codepoints missing from orthography "
-                        f"'{self.ortho_list[i].name}':\n"
-                        f"{[hex(m) for m in missing]}"
-                    )
+                    # print(
+                    #     f"{len(missing)} codepoints missing from orthography "
+                    #     f"'{self.ortho_list[i].name}':\n"
+                    #     f"{[hex(m) for m in missing]}"
+                    # )
 
         else:
             self.w.orthography_status.set(False)

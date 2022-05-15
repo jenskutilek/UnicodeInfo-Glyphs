@@ -3,7 +3,7 @@
 import objc
 
 from AppKit import NSMenuItem
-from GlyphsApp import Glyphs, GSGlyph, WINDOW_MENU
+from GlyphsApp import Glyphs, GSGlyph, WINDOW_MENU, UPDATEINTERFACE
 from GlyphsApp.plugins import GeneralPlugin
 
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
@@ -56,6 +56,7 @@ def set_selection(font, glyph_names, deselect=False):
 class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     @objc.python_method
     def settings(self):
+        self.hasNotification = False
         self.name = Glyphs.localize(
             {"en": "Unicode Info", "de": "Unicode-Info"}
         )
@@ -65,13 +66,22 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.filtered = False
         self.in_font_view = False
         self.build_window(manual_update=True)
-        # Glyphs.addCallback(self.update, UPDATEINTERFACE)
+        if not self.hasNotification:
+            Glyphs.addCallback(self.updateInfo, UPDATEINTERFACE)
+        self.hasNotification = True
         self.started()
+        self.updateInfo()
 
     @objc.python_method
     def start(self):
         newMenuItem = NSMenuItem(self.name, self.showWindow_)
         Glyphs.menu[WINDOW_MENU].append(newMenuItem)
+
+    @objc.python_method
+    def windowClosed(self, sender):
+        if self.hasNotification:
+            Glyphs.removeCallback(self.updateInfo)
+            self.hasNotification = False
 
     @objc.python_method
     def glyph_unicodes(self, glyph):
