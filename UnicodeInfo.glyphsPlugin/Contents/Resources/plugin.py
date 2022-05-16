@@ -63,6 +63,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     def showWindow_(self, sender):
         self.glyph = None
+        self.glyph_name = None
         self.filtered = False
         self.in_font_view = False
         self.build_window(manual_update=True)
@@ -96,6 +97,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         font = Glyphs.font
         self.font = font
         uni = None
+        prev_glyph = self.glyph_name
 
         # We’re in the Edit View
         if hasattr(font, "currentTab") and font.currentTab:
@@ -122,7 +124,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                 self.glyph_name = None
                 self.glyph = None
 
-        if self.unicode == uni:
+        if self.unicode == uni and self.glyph_name == prev_glyph:
             return
 
         self.unicode = uni
