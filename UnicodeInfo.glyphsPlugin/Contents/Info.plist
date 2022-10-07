@@ -13,15 +13,15 @@
 	<key>CFBundleName</key>
 	<string>UnicodeInfo</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>5</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/jenskutilek/UnicodeInfo-Glyphs/master/UnicodeInfo.glyphsPalette/Contents/Info.plist</string>
 	<key>productPageURL</key>
 	<string>https://github.com/jenskutilek/UnicodeInfo-Glyphs</string>
 	<key>productReleaseNotes</key>
-	<string>Initial release</string>
+	<string>Fix a crash when a font is opened</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Jens Kutilek, 2016-2022</string>
 	<key>NSPrincipalClass</key>

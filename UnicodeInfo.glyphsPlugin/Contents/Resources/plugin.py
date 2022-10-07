@@ -109,7 +109,11 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         # We’re in the Font view
         else:
             self.in_font_view = True
-            if font and len(font.selection) == 1:
+            if (
+                font
+                and font.parent.windowController()
+                and len(font.selection) == 1
+            ):
                 glyph = font.selection[0]
                 self.glyph_name = glyph.name
                 self.glyph = glyph
