@@ -11,11 +11,7 @@ from unicodeInfoWindow import UnicodeInfoWindow
 
 
 def add_glyphs_to_font(glyph_names, font):
-    glyph_list = [
-        n
-        for n in glyph_names
-        if n not in font.glyphs
-    ]
+    glyph_list = [n for n in glyph_names if n not in font.glyphs]
     # print("Adding glyphs:", " ".join(glyph_list))
     font.disableUpdateInterface()
     glyphs = [GSGlyph(n) for n in glyph_list]
@@ -30,10 +26,8 @@ def set_filter(font=None, glyph_names=None):
     # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/7
     GSSortDescriptorNameList = objc.lookUpClass("GSSortDescriptorNameList")
     glyphsArrayController = font.fontView.glyphsArrayController()
-    sortDescriptor = (
-        GSSortDescriptorNameList.alloc().initWithKey_ascending_(
-            "name", True
-        )
+    sortDescriptor = GSSortDescriptorNameList.alloc().initWithKey_ascending_(
+        "name", True
     )
     sortDescriptor.setReferenceList_(glyph_names)
     glyphsArrayController.setSortDescriptors_([sortDescriptor])
