@@ -65,7 +65,7 @@ def transform_allah(name):
         result = "%s%s" % (m.group(1).capitalize(), m.group(2).title())
         if m.group(3) is not None:
             result += "%s" % m.group(3).lower()
-        print(result)
+        # print(result)
         return result
     return False
 

@@ -1,19 +1,9 @@
-import os
+from __future__ import annotations
 
 from jkUnicode import UniInfo
 from jkUnicode.tools.jsonhelpers import dict_from_file
-
-from typing import Any, Dict, List, Optional, Set
-
-
-# These codepoints are ignored when scanning for orthography support
-IGNORED_UNICODES = [
-    # Minute and second appear in lots of language definitions in CLDR, but are
-    # not in very many fonts.
-    0x2011,  # non-breaking hyphen
-    0x2032,  # minute
-    0x2033,  # second
-]
+from pathlib import Path
+from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
 
 
 class Orthography:
@@ -140,7 +130,7 @@ class Orthography:
         information.
         """
         return self._ui
-    
+
     @property
     def ignored_unicodes(self) -> Set[int]:
         """
@@ -152,10 +142,7 @@ class Orthography:
             return set()
         return self.info.ignored_unicodes
 
-
-    def cased(
-        self, codepoint_list: List[int]
-    ) -> List[int]:
+    def cased(self, codepoint_list: List[int]) -> List[int]:
         """
         Return a list with its Unicode case mapping toggled. If a codepoint has
         no lowercase or uppercase mapping, it is dropped from the list.
@@ -290,6 +277,37 @@ class Orthography:
             return True
         return False
 
+    def get_missing(
+        self, minimum: bool = False, punctuation: bool = False
+    ) -> Set[int]:
+        """
+        Return a set of missing characters for support of the orthography. If
+        `minimum` is true, only required characters are listed. If `punctuation`
+        is true, only punctuation characters are listed. If both are true, both
+        required and punctuation characters are listed. If both are false, all
+        required, optional, and punctuation characters are listed.
+
+        :param minimum: Only report missing required characters
+        :type minimum: bool
+        :param punctuation: Only report missing punctuation
+        :type punctuation: bool
+        """
+        missing = set()
+
+        if minimum:
+            missing = self.missing_base
+
+            if punctuation:
+                missing |= self.missing_punctuation
+
+        else:
+            if punctuation:
+                missing |= self.missing_punctuation
+            else:
+                missing |= self.missing_all
+
+        return missing
+
     def uses_unicode_base(self, u: int) -> bool:
         """
         Is the codepoint used by this orthography in the base set? This is
@@ -353,9 +371,7 @@ class Orthography:
         self.missing_optional = self.unicodes_optional - cmap_set
         self.missing_punctuation = self.unicodes_punctuation - cmap_set
         self.missing_all = (
-            self.missing_base
-            | self.missing_optional
-            | self.missing_punctuation
+            self.missing_base | self.missing_optional | self.missing_punctuation
         )
 
         self.num_missing_base: int = len(self.missing_base)
@@ -415,13 +431,13 @@ class Orthography:
     @property
     def identifier(self) -> str:
         """
-        Return an identifier for language code/script/territory (read-only).
+        Return a BCP47 identifier for language code/script/territory (read-only).
         """
         _id = self.code
         if self.script != "DFLT":
-            _id += "_%s" % self.script
+            _id += "-%s" % self.script
         if self.territory != "dflt":
-            _id += "_%s" % self.territory
+            _id += "-%s" % self.territory
         return _id
 
     @property
@@ -476,11 +492,14 @@ class OrthographyInfo:
         else:
             self.ui = ui
 
-        data_path = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "json"
-        )
+        data_path = Path(__file__).resolve().parent / "json"
         master = dict_from_file(data_path, "language_characters")
-        self.ignored_unicodes = set(IGNORED_UNICODES)
+        self.ignored_unicodes = set(
+            [
+                int(us, 16)
+                for us in dict_from_file(data_path, "ignored_characters")
+            ]
+        )
         self.orthographies = []
         self._index = {}
         i = 0
@@ -554,7 +573,9 @@ class OrthographyInfo:
                 else:
                     self._reverse_cmap[u] = [i]
 
-    def orthography(self, code: str, script: str = "DFLT", territory: str = "dflt") -> Optional[Orthography]:
+    def orthography(
+        self, code: str, script: str = "DFLT", territory: str = "dflt"
+    ) -> Optional[Orthography]:
         """
         Access a particular orthography by its language, script and territory
         code.
@@ -571,7 +592,7 @@ class OrthographyInfo:
             return None
         return self.orthographies[i]
 
-    def get_orthographies_for_char(self, char: str) -> List[Optional[Orthography]]:
+    def get_orthographies_for_char(self, char: str) -> List[Orthography]:
         """
         Get a list of orthographies which use a supplied character at base
         level.
@@ -584,7 +605,7 @@ class OrthographyInfo:
         ol = self._reverse_cmap.get(ord(char), [])
         return [self.orthographies[i] for i in ol]
 
-    def get_orthographies_for_unicode(self, u: int) -> List[Optional[Orthography]]:
+    def get_orthographies_for_unicode(self, u: int) -> List[Orthography]:
         """
         Get a list of orthographies which use a supplied codepoint at base
         level.
@@ -644,7 +665,9 @@ class OrthographyInfo:
 
     # Convenience functions
 
-    def get_supported_orthographies(self, full_only: bool = False) -> List[Orthography]:
+    def get_supported_orthographies(
+        self, full_only: bool = False
+    ) -> List[Orthography]:
         """
         Get a list of supported orthographies for a character list.
 
@@ -656,7 +679,9 @@ class OrthographyInfo:
             return [o for o in self.orthographies if o.support_full]
         return [o for o in self.orthographies if o.support_basic]
 
-    def get_supported_orthographies_minimum_inclusive(self) -> List[Orthography]:
+    def get_supported_orthographies_minimum_inclusive(
+        self,
+    ) -> List[Orthography]:
         """
         Get a list of orthographies with minimal or better support for the
         current cmap.
@@ -688,6 +713,40 @@ class OrthographyInfo:
             o for o in self.orthographies if o.almost_supported_punctuation()
         ]
 
+    def get_kern_list(self, include_optional=False) -> Set[FrozenSet[int]]:
+        """
+        Return a list of character pairs that may appear in any supported
+        orthography for the current cmap.
+
+        :param include_optional: Include optional characters.
+        :type include_optional: bool
+        """
+        import itertools
+
+        m = self.get_supported_orthographies_minimum_inclusive()
+        possible_pairs = set()
+        for ot in m:
+            if include_optional:
+                unicodes = ot.unicodes_base | ot.unicodes_optional
+            else:
+                unicodes = ot.unicodes_base
+            ot_pairs = frozenset(
+                [
+                    frozenset(sorted(list(pair)))
+                    for pair in itertools.combinations_with_replacement(
+                        unicodes, 2
+                    )
+                ]
+            )
+            possible_pairs |= ot_pairs
+        # for pair in sorted([sorted(p) for p in possible_pairs]):
+        #     try:
+        #         L, R = pair
+        #         print(chr(L), chr(R))
+        #     except ValueError:
+        #         print(chr(next(iter(pair))))
+        return possible_pairs
+
     def __len__(self) -> int:
         """
         Return the number of known orthographies.
@@ -699,37 +758,44 @@ class OrthographyInfo:
 
     # Very convenient convenience functions
 
-    def print_report(self, otlist: List[Orthography], attr: str) -> None:
+    def print_report(
+        self, otlist: List[Orthography], attr: str, bcp47: bool = False
+    ) -> None:
         """
         Print a formatted report for a given list of orthographies.
 
         :param otlist: The list of orthographies.
-        :type otlist: list
+        :type otlist: List[Orthography]
 
         :param attr: The name of the attribute of the orthography object that
-                     will be shown in the report (missing_base,
-                     missing_optional, missing_punctuation, missing_all,
-                     num_missing_base, num_missing_optional,
-                     num_missing_punctuation, base_pc, optional_pc,
-                     punctuation_pc, unicodes_base, unicodes_optional,
-                     unicodes_punctuation).
+            will be shown in the report (missing_base, missing_optional,
+            missing_punctuation, missing_all, num_missing_base,
+            num_missing_optional, num_missing_punctuation, base_pc, optional_pc,
+            punctuation_pc, unicodes_base, unicodes_optional,
+            unicodes_punctuation).
         :type attr: str
+
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         otlist.sort()
         for ot in otlist:
-            print("\n%s" % ot.name)
+            name = ot.identifier if bcp47 else ot.name
+            print("\n%s" % name)
             for u in sorted(list(getattr(ot, attr))):
                 self.ui.unicode = u
                 print(
-                    "    0x%04X\t%s\t%s" % (
-                        u, self.ui.glyphname, self.ui.nice_name
-                    )
+                    "    0x%04X\t%s\t%s"
+                    % (u, self.ui.glyphname, self.ui.nice_name)
                 )
 
-    def report_supported_minimum_inclusive(self) -> None:
+    def report_supported_minimum_inclusive(self, bcp47=False) -> None:
         """
         Print a report of minimally supported orthographies for the current
         cmap (no punctuation, no optional characters required).
+
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         m = self.get_supported_orthographies_minimum_inclusive()
         print(
@@ -738,78 +804,140 @@ class OrthographyInfo:
         )
         m.sort()
         for ot in m:
-            print(ot.name)
+            if bcp47:
+                print(ot.identifier)
+            else:
+                print(ot.name)
 
-    def report_supported_minimum(self) -> None:
+    def report_supported_minimum(self, bcp47=False) -> None:
         """
         Print a report of minimally supported orthographies for the current
         cmap (no punctuation, no optional characters present).
+
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         m = self.get_supported_orthographies_minimum()
         print("The font has minimal support for %i orthographies:" % len(m))
         m.sort()
         for ot in m:
-            print(ot.name)
+            if bcp47:
+                print(ot.identifier)
+            else:
+                print(ot.name)
 
-    def report_supported(self, full_only: bool = False) -> None:
+    def report_supported(self, full_only: bool = False, bcp47=False) -> None:
         """
         Print a report of supported orthographies for the current cmap.
 
         :param full_only: Only report orthographies which have both basic and
             optional characters present
         :type full_only: bool
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         m = self.get_supported_orthographies(full_only)
         print("The font supports %i orthographies:" % len(m))
         m.sort()
         for ot in m:
-            print(ot.name)
+            if bcp47:
+                print(ot.identifier)
+            else:
+                print(ot.name)
 
-    def report_missing_punctuation(self) -> None:
+    def report_missing(
+        self, codes: List[str], minimum=False, punctuation=False, bcp47=False
+    ) -> None:
+        """
+        Print a report of missing characters for the given BCP47 language
+        subtags. If `minimum` is true, only required characters are listed. If
+        `punctuation` is true, only punctuation characters are listed. If both
+        are true, both required and punctuation characters are listed. If both
+        are false, all required, optional, and punctuation characters are
+        listed.
+
+        :param codes: BCP47 language subtags
+        :type codes: List[str]
+        :param minimum: Only report missing required characters
+        :type minimum: bool
+        :param punctuation: Only report missing punctuation
+        :type punctuation: bool
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
+        """
+        for code in codes:
+            o = self.orthography(*self.split_bcp47(code))
+            if o is None:
+                print(f"Orthography is unknown: {code}")
+                continue
+
+            missing = o.get_missing(minimum, punctuation)
+
+            if missing:
+                print(o.identifier if bcp47 else o.name)
+                for u in sorted(missing):
+                    self.ui.unicode = u
+                    print(
+                        "    0x%04X\t%s\t%s"
+                        % (u, self.ui.glyphname, self.ui.nice_name)
+                    )
+
+    def report_missing_punctuation(self, bcp47=False) -> None:
         """
         Print a report of orthographies which have all basic letters present,
         but are missing puncuation characters.
+
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         m = self.get_almost_supported_punctuation()
         print(
             "Orthographies which can be supported by adding punctuation characters:"
         )
-        self.print_report(m, "missing_punctuation")
+        self.print_report(m, "missing_punctuation", bcp47=bcp47)
 
-    def report_near_misses(self, n: int = 5) -> None:
+    def report_near_misses(self, n: int = 5, bcp47=False) -> None:
         """
         Print a report of orthographies which a maximum number of n characters
         missing.
+
+        :param n: The maximum number of missing characters
+        :type n: int
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
         """
         m = self.get_almost_supported(n)
         print(
             "Orthographies which can be supported with max. %i additional %s:"
             % (n, "character" if n == 1 else "characters")
         )
-        self.print_report(m, "missing_base")
+        self.print_report(m, "missing_base", bcp47=bcp47)
 
-    def report_kill_list(self) -> None:
+    def report_kern_list(self, bcp47=False, include_optional=False) -> None:
         """
-        Print a list of character pairs that do not appear in any supported
+        Print a list of character pairs that may appear in any supported
         orthography for the current cmap.
-        """
-        import itertools
 
-        m = self.get_supported_orthographies_minimum_inclusive()
-        possible_pairs = set()
-        for ot in m:
-            unicodes = ot.unicodes_base  # | ot.unicodes_optional
-            ot_pairs = set(
-                itertools.combinations_with_replacement(unicodes, 2)
-            )
-            print(
-                f"{ot.name}: {len(unicodes)} characters, "
-                f"{len(ot_pairs)} possible combinations"
-            )
-            possible_pairs |= ot_pairs
-        # for L, R in sorted(list(possible_pairs)):
-        #     print("%s%s" % (chr(L), chr(R)))
-        print(possible_pairs)
+        :param bcp47: Output BCP47 subtags instead of names
+        :type bcp47: bool
+        """
+        print(self.get_kern_list(include_optional))
+
+    def split_bcp47(self, value: str) -> Tuple[str, str, str]:
+        code = value
+        script = "DFLT"
+        territory = "dflt"
+        if "-" in value:
+            parts = value.split("-")
+            assert len(parts) > 1
+            code = parts[0]
+            for part in parts[1:]:
+                if len(part) == 4:
+                    script = part
+                else:
+                    territory = part
+                    break
+        return code, script, territory
 
 
 # o = Orthography(

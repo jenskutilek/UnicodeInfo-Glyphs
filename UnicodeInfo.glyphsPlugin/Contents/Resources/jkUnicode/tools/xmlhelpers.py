@@ -51,23 +51,15 @@ class FilteredList:
         return str(self._value)
 
 
-def filtered_char_list(xml_char_list: str, debug: bool = False) -> List[str]:
-    # Filter backslashes and other peculiarities of the XML format from the
-    # character list
-    if xml_char_list[0] == "[" and xml_char_list[-1] == "]":
-        xml_char_list = xml_char_list[1:-1]
-    else:
-        print("ERROR: Character list string from XML was not wrapped in [].")
-        return []
-
+def unescape_char_list(xml_char_list: str):
     filtered = FilteredList()
     in_escape = False
     in_uniesc = False
     buf = Buffer()
 
     for c in xml_char_list:
-        if debug:
-            print("Chunk: '%s', buffer:'%s'" % (c, buf))
+        # if debug:
+        #     print("Chunk: '%s', buffer:'%s'" % (c, buf))
         if in_uniesc:
             if c in "\\}{- ":
                 filtered.add(buf.flush())
@@ -113,18 +105,30 @@ def filtered_char_list(xml_char_list: str, debug: bool = False) -> List[str]:
                 else:
                     filtered.add(c)
             else:
-                if c == u"\u2010":
+                if c == "\u2010":
                     c = "-"  # Replace proper hyphen by hyphen-minus
                 if in_escape:
                     in_escape = False
                 filtered.add(c)
                 buf.clear()
-            if debug:
-                print("New buffer: '%s'" % buf)
+            # if debug:
+            #     print("New buffer: '%s'" % buf)
 
     filtered.add(buf.flush())
 
-    result = filtered.get()
+    return filtered.get()
+
+
+def filtered_char_list(xml_char_list: str, debug: bool = False) -> List[str]:
+    # Filter backslashes and other peculiarities of the XML format from the
+    # character list
+    if xml_char_list[0] == "[" and xml_char_list[-1] == "]":
+        xml_char_list = xml_char_list[1:-1]
+    else:
+        print("ERROR: Character list string from XML was not wrapped in [].")
+        return []
+
+    result = unescape_char_list(xml_char_list)
 
     # Expand ranges
     final = []
@@ -148,26 +152,26 @@ def filtered_char_list(xml_char_list: str, debug: bool = False) -> List[str]:
 if __name__ == "__main__":
     lists = [
         (
-            u"[\\u200C\\u200D-\\u200F A {A\\u0301} {E \\u0302} {ij} {a b c} 未-札 \\]]",
+            "[\\u200C\\u200D-\\u200F A {A\\u0301} {E \\u0302} {ij} {a b c} 未-札 \\]]",
             [
-                u"A",
-                u"E",
-                u"]",
-                u"a",
-                u"b",
-                u"c",
-                u"i",
-                u"j",
-                u"\u0301",
-                u"\u0302",
-                u"\u200c",
-                u"\u200d",
-                u"\u200e",
-                u"\u200f",
-                u"\u672a",
-                u"\u672b",
-                u"\u672c",
-                u"\u672d",
+                "A",
+                "E",
+                "]",
+                "a",
+                "b",
+                "c",
+                "i",
+                "j",
+                "\u0301",
+                "\u0302",
+                "\u200c",
+                "\u200d",
+                "\u200e",
+                "\u200f",
+                "\u672a",
+                "\u672b",
+                "\u672c",
+                "\u672d",
             ],
         )
         # (u"[á à ã {ą\\u0301} {ą\\u0303} {ch} {dz} {dž} é è ẽ {ę\\u0301} {ę\\u0303} {ė\\u0301} {ė\\u0303} {i\\u0307\\u0301}í {i\\u0307\\u0300}ì {i\\u0307\\u0303}ĩ {į\\u0301}{į\\u0307\\u0301} {į\\u0303}{į\\u0307\\u0303} {j\\u0303}{j\\u0307\\u0303} {l\\u0303} {m\\u0303} ñ ó ò õ q {r\\u0303} ú ù ũ {ų\\u0301} {ų\\u0303} {ū\\u0301} {ū\\u0303} w x]", [u'c', u'd', u'h', u'i', u'j', u'l', u'm', u'q', u'r', u'w', u'x', u'z', u'\xe0', u'\xe1', u'\xe3', u'\xe8', u'\xe9', u'\xec', u'\xed', u'\xf1', u'\xf2', u'\xf3', u'\xf5', u'\xf9', u'\xfa', u'\u0105', u'\u0117', u'\u0119', u'\u0129', u'\u012f', u'\u0169', u'\u016b', u'\u0173', u'\u017e', u'\u0300', u'\u0301', u'\u0303', u'\u0307', u'\u1ebd'])
