@@ -13,9 +13,9 @@
 	<key>CFBundleName</key>
 	<string>UnicodeInfo</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.1</string>
+	<string>1.0.2</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/jenskutilek/UnicodeInfo-Glyphs/master/UnicodeInfo.glyphsPalette/Contents/Info.plist</string>
 	<key>productPageURL</key>
