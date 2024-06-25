@@ -344,12 +344,12 @@ class UnicodeInfoWindow:
     def selectOrthography(self, sender=None, index=-1):
         if sender is None:
             i = index
-            if i == -1 and len(self.w.orthography_list.getItems()) > 0:
+            if i == -1 and len(self.orthographies_in_popup) > 0:
                 i = self.w.orthography_list.get()
         else:
             i = sender.get()
         if i > -1:
-            if i < len(self.w.orthography_list.getItems()):
+            if i < len(self.orthographies_in_popup):
                 self.w.orthography_list.set(i)
                 if self.include_optional:
                     is_supported = self.ortho_list[i].support_full
@@ -542,6 +542,7 @@ class UnicodeInfoWindow:
                     )
                 ]
 
+        self.orthographies_in_popup = [o.name for o in self.ortho_list]
         orthography_list_ui_strings = []
         for o in self.ortho_list:
             if o.support_full:
@@ -561,9 +562,8 @@ class UnicodeInfoWindow:
             )
             # If the old name is in the new list, select it
             if old_sel is not None:
-                names = self.w.orthography_list.getItems()
-                if old_sel in names:
-                    new_index = names.index(old_sel)
+                if old_sel in self.orthographies_in_popup:
+                    new_index = self.orthographies_in_popup.index(old_sel)
 
         self.selectOrthography(index=new_index)
 
@@ -669,8 +669,7 @@ class UnicodeInfoWindow:
         if i < 0:
             return
 
-        items = self.w.orthography_list.getItems()
-        if i < len(items):
+        if i < len(self.orthographies_in_popup):
             font = self.font_fallback
             if font is None:
                 return
