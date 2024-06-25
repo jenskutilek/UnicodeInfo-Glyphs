@@ -515,7 +515,7 @@ class UnicodeInfoWindow:
         # Save the old selection from the orthography list
         old_index = self.w.orthography_list.get()
         if old_index > -1:
-            old_sel = self.ortho_list[self.w.orthography_list.get()].name
+            old_sel = self.ortho_list[old_index].name
         else:
             old_sel = None
         new_index = 0
