@@ -518,7 +518,6 @@ class UnicodeInfoWindow:
             old_sel = self.orthographies_in_popup[old_index]
         except (IndexError, AttributeError):
             old_sel = None
-        new_index = 0
 
         # Check which orthographies use current unicode
         if self.glyph is None:
@@ -561,11 +560,11 @@ class UnicodeInfoWindow:
                 self.in_font_view and not self.filtered
             )
             # If the old name is in the new list, select it
-            if old_sel is not None:
-                if old_sel in self.orthographies_in_popup:
-                    new_index = self.orthographies_in_popup.index(old_sel)
-
-        self.selectOrthography(index=new_index)
+            try:
+                new_index = self.orthographies_in_popup.index(old_sel)
+                self.selectOrthography(index=new_index)
+            except ValueError:
+                pass
 
     @objc.python_method
     def _updateGlyph(self):
