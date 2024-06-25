@@ -83,13 +83,10 @@ class UnicodeInfoWindow:
             (8, y, axis - 10, 20), "Block", sizeStyle="small"
         )
         self.w.block_list = PopUpButton(
-            (axis, y - 4, -90, 20),
+            (axis, y - 4, -68, 20),
             [],
             callback=self.selectBlock,
             sizeStyle="small",
-        )
-        self.w.block_status = CheckBox(
-            (-80, y - 3, -70, 20), "", sizeStyle="small"
         )
         self.w.show_block = Button(
             (-60, y - 6, -10, 25),
@@ -103,13 +100,10 @@ class UnicodeInfoWindow:
                 (8, y, axis - 10, 20), "Usage", sizeStyle="small"
             )
             self.w.orthography_list = PopUpButton(
-                (axis, y - 4, -90, 20),
+                (axis, y - 4, -68, 20),
                 [],
                 callback=self.selectOrthography,
                 sizeStyle="small",
-            )
-            self.w.orthography_status = CheckBox(
-                (-80, y - 3, -70, 20), "", sizeStyle="small"
             )
             self.w.show_orthography = Button(
                 (-60, y - 6, -10, 25),
@@ -173,7 +167,6 @@ class UnicodeInfoWindow:
             block_list_ui_strings.append(self.block_completeness(block, self.font_fallback) + ' ' + block)
         self.w.block_list.setItems(block_list_ui_strings)
         self.w.show_block.enable(False)
-        self.w.block_status.enable(False)
         self.w.case.enable(False)
 
         if manual_update:
@@ -184,7 +177,6 @@ class UnicodeInfoWindow:
         if self.orth_present:
             # self.w.orthography_list.enable(False)
             self.w.show_orthography.enable(False)
-            self.w.orthography_status.enable(False)
             # if self.font is None:
             #     self.w.include_optional.enable(False)
             # else:
@@ -365,7 +357,6 @@ class UnicodeInfoWindow:
                     is_supported = self.ortho_list[i].support_full
                 else:
                     is_supported = self.ortho_list[i].support_basic
-                self.w.orthography_status.set(is_supported)
                 self.w.orthography_add_missing.enable(not is_supported)
                 if not is_supported:
                     missing = (
@@ -381,7 +372,6 @@ class UnicodeInfoWindow:
                     # )
 
         else:
-            self.w.orthography_status.set(False)
             self.w.orthography_add_missing.enable(False)
 
     @objc.python_method
@@ -432,7 +422,6 @@ class UnicodeInfoWindow:
             i = self.w.block_list.get()
         if i == 0:
             self.w.show_block.enable(False)
-            self.w.block_status.set(False)
             self.w.block_add_missing.enable(False)
         else:
             self.w.show_block.enable(self.in_font_view and not self.filtered)
@@ -445,7 +434,6 @@ class UnicodeInfoWindow:
                 glyph_list = self.get_missing_glyphs_for_block(block, font)
                 is_supported = len(glyph_list) == 0
                 self.w.block_add_missing.enable(not is_supported)
-            self.w.block_status.set(is_supported)
 
     @objc.python_method
     def updateInfo(self, sender):
@@ -752,7 +740,6 @@ class UnicodeInfoWindow:
             # Update status
             missing = self.get_missing_glyphs_for_block(block, font)
             is_supported = len(missing) == 0
-            self.w.block_status.set(is_supported)
             self.w.block_add_missing.enable(not is_supported)
 
             self._saveGlyphSelection(font)
