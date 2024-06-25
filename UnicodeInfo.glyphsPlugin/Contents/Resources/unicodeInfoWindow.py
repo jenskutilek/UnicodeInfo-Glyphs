@@ -545,7 +545,7 @@ class UnicodeInfoWindow:
         for o in self.ortho_list:
             if o.support_full:
                 ui_string = '● ' + o.name
-            elif o.support_minimal:
+            elif o.support_basic:
                 ui_string = '◑ ' + o.name
             else:
                 ui_string = '○ ' + o.name
