@@ -382,11 +382,11 @@ class UnicodeInfoWindow:
             for n in glyph_list
             if n not in self.font_glyphs
         ]
-        if missing:
-            print(
-                f"{len(missing)} glyphs missing from block '{block}':"
-                f"\n{missing}"
-            )
+        # if missing:
+        #     print(
+        #         f"{len(missing)} glyphs missing from block '{block}':"
+        #         f"\n{missing}"
+        #     )
         return missing
 
     @objc.python_method
