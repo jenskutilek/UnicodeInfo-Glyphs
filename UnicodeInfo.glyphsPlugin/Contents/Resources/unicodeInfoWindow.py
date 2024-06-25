@@ -161,8 +161,17 @@ class UnicodeInfoWindow:
         self.selectedGlyphs = ()
         self.include_optional = False
         self.w.reassign_unicodes.enable(False)
+        self.all_unicodes_in_font = set()
+        for glyph in self.font_fallback.glyphs:
+            if glyph.unicodes:
+                for uni_hex_str in glyph.unicodes:
+                    self.all_unicodes_in_font.add(int(uni_hex_str, 16))
+
         self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
-        self.w.block_list.setItems(self.blocks_in_popup)
+        block_list_ui_strings = [""]
+        for block in self.blocks_in_popup[1:]:
+            block_list_ui_strings.append(self.block_completeness(block, self.font_fallback) + ' ' + block)
+        self.w.block_list.setItems(block_list_ui_strings)
         self.w.show_block.enable(False)
         self.w.block_status.enable(False)
         self.w.case.enable(False)
@@ -389,6 +398,23 @@ class UnicodeInfoWindow:
         #         f"\n{missing}"
         #     )
         return missing
+
+    @objc.python_method
+    def block_completeness(self, block, font):
+        any_found = None
+        any_missing = None
+        low, high = uniNameToBlock[block]
+        for cp in range(low, high + 1):
+            if cp in uniName:
+                if cp in self.all_unicodes_in_font:
+                    if any_missing:
+                        return '◑'
+                    any_found = True
+                else:
+                    if any_found:
+                        return '◑'
+                    any_missing = True
+        return '●' if any_found else '○'
 
     @objc.python_method
     def selectBlock(self, sender=None, name=""):
