@@ -397,9 +397,9 @@ class UnicodeInfoWindow:
             if name == "":
                 self.w.block_list.set(0)
             else:
-                if name in self.blocks_in_popup:
+                try:
                     i = self.blocks_in_popup.index(name)
-                else:
+                except ValueError:
                     i = 0
                 self.w.block_list.set(i)
         else:
