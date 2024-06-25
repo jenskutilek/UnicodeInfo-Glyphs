@@ -544,9 +544,11 @@ class UnicodeInfoWindow:
         orthography_list_ui_strings = []
         for o in self.ortho_list:
             if o.support_full:
-                ui_string = '☑ ' + o.name
+                ui_string = '● ' + o.name
+            elif o.support_minimal:
+                ui_string = '◑ ' + o.name
             else:
-                ui_string = '☐ ' + o.name
+                ui_string = '○ ' + o.name
             orthography_list_ui_strings.append(ui_string)
         self.w.orthography_list.setItems(orthography_list_ui_strings)
 
