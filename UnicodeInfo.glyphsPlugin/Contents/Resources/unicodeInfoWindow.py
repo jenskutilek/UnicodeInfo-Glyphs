@@ -542,7 +542,14 @@ class UnicodeInfoWindow:
                     )
                 ]
 
-        self.w.orthography_list.setItems([o.name for o in self.ortho_list])
+        orthography_list_ui_strings = []
+        for o in self.ortho_list:
+            if o.support_full:
+                ui_string = '☑ ' + o.name
+            else:
+                ui_string = '☐ ' + o.name
+            orthography_list_ui_strings.append(ui_string)
+        self.w.orthography_list.setItems(orthography_list_ui_strings)
 
         if len(self.ortho_list) == 0:
             self.w.orthography_list.enable(False)
