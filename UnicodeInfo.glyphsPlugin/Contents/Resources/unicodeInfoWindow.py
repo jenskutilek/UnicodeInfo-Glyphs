@@ -161,7 +161,8 @@ class UnicodeInfoWindow:
         self.selectedGlyphs = ()
         self.include_optional = False
         self.w.reassign_unicodes.enable(False)
-        self.w.block_list.setItems([""] + sorted(uniNameToBlock.keys()))
+        self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
+        self.w.block_list.setItems(self.blocks_in_popup)
         self.w.show_block.enable(False)
         self.w.block_status.enable(False)
         self.w.case.enable(False)
@@ -316,7 +317,7 @@ class UnicodeInfoWindow:
     def addMissingBlock(self, sender=None):
         i = self.w.block_list.get()
         if i > -1:
-            blk = self.w.block_list.getItems()[i]
+            blk = self.blocks_in_popup[i]
             self._addMissingBlock(blk)
             self.updateInfo()
 
@@ -396,9 +397,8 @@ class UnicodeInfoWindow:
             if name == "":
                 self.w.block_list.set(0)
             else:
-                items = self.w.block_list.getItems()
-                if name in items:
-                    i = items.index(name)
+                if name in self.blocks_in_popup:
+                    i = self.blocks_in_popup.index(name)
                 else:
                     i = 0
                 self.w.block_list.set(i)
@@ -415,7 +415,7 @@ class UnicodeInfoWindow:
             if font is None:
                 is_supported = False
             else:
-                block = self.w.block_list.getItems()[i]
+                block = self.blocks_in_popup[i]
                 glyph_list = self.get_missing_glyphs_for_block(block, font)
                 is_supported = len(glyph_list) == 0
                 self.w.block_add_missing.enable(not is_supported)
@@ -498,9 +498,8 @@ class UnicodeInfoWindow:
         else:
             # Get the name of the Unicode block for codepoint u
             block = get_block(u)
-            items = self.w.block_list.getItems()
-            if block in items:
-                self.w.block_list.set(items.index(block))
+            if block in self.blocks_in_popup:
+                self.w.block_list.set(self.blocks_in_popup.index(block))
                 self.w.show_block.enable(
                     self.in_font_view and not self.filtered
                 )
@@ -714,13 +713,12 @@ class UnicodeInfoWindow:
         if i <= 0:
             return
 
-        items = self.w.block_list.getItems()
-        if i < len(items):
+        if i < len(self.blocks_in_popup):
             font = self.font_fallback
             if font is None:
                 return
 
-            block = items[i]
+            block = self.blocks_in_popup[i]
             glyph_list = self.get_block_glyph_list(block, font, reserved=True)
 
             # Update status
