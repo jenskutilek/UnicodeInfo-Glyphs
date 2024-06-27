@@ -258,7 +258,7 @@ script_codes = {
 	"Code for uncoded script": "Zzzz",
 }
 
-with open("jkUnicode/json/ignored.json", "r") as text_file:
+with open("jkUnicode/json/ignored_languages.json", "r") as text_file:
 	ignored_languages = json.load(text_file)
 
 language_characters_hyperglot = {}
