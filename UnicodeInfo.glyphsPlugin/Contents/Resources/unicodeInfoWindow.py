@@ -27,7 +27,7 @@ class UnicodeInfoWindow:
             self.orth_present = False
 
         width = 320
-        height = 116
+        height = 136
 
         if self.orth_present:
             height += 37
@@ -96,6 +96,16 @@ class UnicodeInfoWindow:
         )
         if self.orth_present:
             y += 20
+            self.w.database_label = TextBox(
+                (8, y, axis - 10, 20), "Source", sizeStyle="small"
+            )
+            self.w.database_list = PopUpButton(
+                (axis, y - 4, -68, 20),
+                ['Hyperglot','CDLR'],
+                callback=self.selectDatabase,
+                sizeStyle="small",
+            )
+            y += 20
             self.w.orthography_label = TextBox(
                 (8, y, axis - 10, 20), "Usage", sizeStyle="small"
             )
@@ -148,7 +158,9 @@ class UnicodeInfoWindow:
         self.info = UniInfo(0)
         self.unicode = None
         if self.orth_present:
-            self.ortho = OrthographyInfo(ui=self.info)
+            self.ortho_cdlr = OrthographyInfo(ui=self.info,source="CDLR")
+            self.ortho_hyperglot = OrthographyInfo(ui=self.info,source="Hyperglot")
+            self.ortho = self.ortho_hyperglot
             self.ortho_list = []
         self.case = None
         self.view = None
@@ -341,6 +353,15 @@ class UnicodeInfoWindow:
         self.w.orthography_add_missing.enable(False)
         self._resetFilter(sender)
         self.filtered = False
+
+    @objc.python_method
+    def selectDatabase(self, sender=None):
+        if sender.getTitle() == 'CDLR':
+            self.ortho = self.ortho_cdlr
+        else:
+            assert(sender.getTitle() == 'Hyperglot')
+            self.ortho = self.ortho_hyperglot
+        self._updateOrthographies()
 
     @objc.python_method
     def selectOrthography(self, sender=None, index=-1):
