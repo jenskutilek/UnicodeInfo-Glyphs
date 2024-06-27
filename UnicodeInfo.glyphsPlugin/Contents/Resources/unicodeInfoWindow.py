@@ -563,6 +563,9 @@ class UnicodeInfoWindow:
                 ui_string = '◑ ' + o.name
             else:
                 ui_string = '○ ' + o.name
+            if not o.uses_unicode_base(self.unicode):
+                assert(self.include_optional)
+                ui_string += " [optional]"
             orthography_list_ui_strings.append(ui_string)
         self.w.orthography_list.setItems(orthography_list_ui_strings)
 
