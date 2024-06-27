@@ -479,13 +479,13 @@ class OrthographyInfo:
     """
     The main Orthography Info object. It reads the information for each
     orthography from the files in the `json` subfolder. The JSON data is
-    generated from the Unicode CLDR data via included Python scripts.
+    generated from the specified data source via included Python scripts.
 
     This object is expensive to instantiate due to disk access, so it is
     recommended to instantiate it once and then reuse it.
     """
 
-    def __init__(self, ui: Optional[UniInfo] = None) -> None:
+    def __init__(self, ui: Optional[UniInfo] = None, source="CDLR") -> None:
         # We need a UniInfo object
         if ui is None:
             self.ui = UniInfo()
@@ -493,7 +493,8 @@ class OrthographyInfo:
             self.ui = ui
 
         data_path = Path(__file__).resolve().parent / "json"
-        master = dict_from_file(data_path, "language_characters")
+        json_file = {"CDLR": "language_characters", "Hyperglot": "language_characters_hyperglot"}[source]
+        master = dict_from_file(data_path, json_file)
         self.ignored_unicodes = set(
             [
                 int(us, 16)
