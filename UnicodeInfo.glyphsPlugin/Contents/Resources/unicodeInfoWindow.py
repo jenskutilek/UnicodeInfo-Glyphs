@@ -97,7 +97,7 @@ class UnicodeInfoWindow:
         if self.orth_present:
             y += 20
             self.w.database_label = TextBox(
-                (8, y, axis - 10, 20), "Source", sizeStyle="small"
+                (8, y, axis - 5, 20), "Source", sizeStyle="small"
             )
             self.w.database_list = PopUpButton(
                 (axis, y - 4, -68, 20),
