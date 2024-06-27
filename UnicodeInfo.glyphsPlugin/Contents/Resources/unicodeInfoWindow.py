@@ -373,6 +373,7 @@ class UnicodeInfoWindow:
             i = sender.get()
         if i > -1:
             if i < len(self.orthographies_in_popup):
+                self.selected_orthography = self.orthographies_in_popup[i]
                 self.w.orthography_list.set(i)
                 if self.include_optional:
                     is_supported = self.ortho_list[i].support_full
@@ -393,6 +394,7 @@ class UnicodeInfoWindow:
                     # )
 
         else:
+            self.selected_orthography = None
             self.w.orthography_add_missing.enable(False)
 
     @objc.python_method
@@ -546,13 +548,6 @@ class UnicodeInfoWindow:
     def _updateOrthographies(self):
         if not self.orth_present:
             return
-        # Save the old selection from the orthography list
-        old_index = self.w.orthography_list.get()
-        try:
-            old_sel = self.orthographies_in_popup[old_index]
-        except (IndexError, AttributeError):
-            old_sel = None
-
         # Check which orthographies use current unicode
         if self.glyph is None:
             # Show all
@@ -600,10 +595,10 @@ class UnicodeInfoWindow:
             )
             # If the old name is in the new list, select it
             try:
-                new_index = self.orthographies_in_popup.index(old_sel)
+                new_index = self.orthographies_in_popup.index(self.selected_orthography)
                 self.selectOrthography(index=new_index)
-            except ValueError:
-                pass
+            except (ValueError, AttributeError):
+                self.selected_orthography = self.orthographies_in_popup[0]
 
     @objc.python_method
     def _updateGlyph(self):
