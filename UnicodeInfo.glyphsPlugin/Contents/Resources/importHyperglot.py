@@ -291,13 +291,14 @@ for code, data in languages:
 	except KeyError:
 		# seems to be a macrolanguage
 		continue
+	default_script =  script_codes[orthographies[0]['script']]
 	language_dict = {}
 	for orthography in orthographies:
 		if data['validity'] == 'draft':
 			continue
 		assert(data['validity'] == 'preliminary' or data['validity'] == 'verified')
 		# ^ So that we catch new types of validity in case they are introduced
-		script = script_codes[orthography['script']]
+		script = script_codes[orthography['script']].replace(default_script, 'DFLT')
 		if script in language_dict:
 			# We have already added this script to the language.
 			# There is no systematic way of finding out what makes this orthography
@@ -315,8 +316,6 @@ for code, data in languages:
 			combined_opt = combined_full - existing_base
 			unicodes_dict['optional'] = reduced_and_sorted(combined_opt)
 		else:
-			if orthography is data['orthographies'][0]:
-				script = 'DFLT'
 			unicodes_dict = {}
 			unicodes_dict['base'] = code_points_reduced(orthography['base'])
 			if 'auxiliary' in orthography:
