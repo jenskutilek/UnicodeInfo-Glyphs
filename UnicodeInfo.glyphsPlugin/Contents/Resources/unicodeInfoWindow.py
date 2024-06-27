@@ -572,6 +572,7 @@ class UnicodeInfoWindow:
 
         self.orthographies_in_popup = [o.name for o in self.ortho_list]
         orthography_list_ui_strings = []
+        # TODO: We need a strategy for when multiple glyphs are selected
         for o in self.ortho_list:
             if o.support_full:
                 ui_string = '● ' + o.name
@@ -580,7 +581,6 @@ class UnicodeInfoWindow:
             else:
                 ui_string = '○ ' + o.name
             if not o.uses_unicode_base(self.unicode):
-                assert(self.include_optional)
                 ui_string += " [optional]"
             orthography_list_ui_strings.append(ui_string)
         self.w.orthography_list.setItems(orthography_list_ui_strings)
