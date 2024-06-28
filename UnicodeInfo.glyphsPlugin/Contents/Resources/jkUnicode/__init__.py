@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from functools import cached_property
-from pathlib import Path
-from jkUnicode.tools.jsonhelpers import dict_from_file
 from jkUnicode.aglfn import getGlyphnameForUnicode
 from jkUnicode.uniBlock import get_block
 from jkUnicode.uniCase import uniLowerCaseMapping, uniUpperCaseMapping
@@ -110,8 +108,6 @@ class UniInfo:
         self._unicode = None
         if uni is not None:
             self.unicode = uni
-        data_path = Path(__file__).resolve().parent / "json"
-        self.speakers = dict_from_file(data_path, "language_speakers")
 
     @property
     def unicode(self) -> Optional[int]:

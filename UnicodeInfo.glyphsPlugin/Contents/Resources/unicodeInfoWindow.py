@@ -398,11 +398,10 @@ class UnicodeInfoWindow:
                     #     f"'{orthography.name}':\n"
                     #     f"{[hex(m) for m in missing]}"
                     # )
-                if orthography.code in self.info.speakers:
-                    speakers = self.info.speakers[orthography.code]
+                if orthography.speakers != 0:
                     # round to two significant decimal digits
                     # (from https://stackoverflow.com/a/48812729)
-                    speakers = int(float("{:.2g}".format(speakers)))
+                    speakers = int(float("{:.2g}".format(orthography.speakers)))
                     if speakers >= 1000000:
                         self.w.speakers_label.set("{0:g} M speakers".format(speakers/1000000))
                     else:

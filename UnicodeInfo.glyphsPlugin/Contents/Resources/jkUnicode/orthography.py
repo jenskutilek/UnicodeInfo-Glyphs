@@ -36,6 +36,7 @@ class Orthography:
         script: str,
         territory: str,
         info_dict: Dict[str, Any],
+        speakers: int,
     ) -> None:
         self._info = info_obj
         if self._info is None:
@@ -54,6 +55,7 @@ class Orthography:
         self.scan_ok = False
         self.from_dict(info_dict)
         self.forget_cmap()
+        self.speakers = speakers
 
     def from_dict(self, info_dict: Dict[str, Any]) -> None:
         """
@@ -495,6 +497,7 @@ class OrthographyInfo:
         data_path = Path(__file__).resolve().parent / "json"
         json_file = {"CDLR": "language_characters", "Hyperglot": "language_characters_hyperglot"}[source]
         master = dict_from_file(data_path, json_file)
+        language_speakers = dict_from_file(data_path, "language_speakers")
         self.ignored_unicodes = set(
             [
                 int(us, 16)
@@ -510,8 +513,12 @@ class OrthographyInfo:
                 # print(script, territory_dict)
                 for territory, info in territory_dict.items():
                     # print(territory, info)
+                    try:
+                        speakers = language_speakers[code]
+                    except KeyError:
+                        speakers = 0
                     self.orthographies.append(
-                        Orthography(self, code, script, territory, info)
+                        Orthography(self, code, script, territory, info, speakers)
                     )
                     self._index[(code, script, territory)] = i
                     i += 1
