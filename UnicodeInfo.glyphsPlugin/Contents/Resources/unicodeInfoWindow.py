@@ -406,6 +406,8 @@ class UnicodeInfoWindow:
                         speakers_label_text = "{0:g} M speakers".format(speakers/1000000)
                     else:
                         speakers_label_text = "{:,} speakers".format(speakers)
+                    if orthography.script != "DFLT":
+                        speakers_label_text += " (non-default script)"
                     self.w.speakers_label.set(speakers_label_text)
         else:
             self.selected_orthography = None
