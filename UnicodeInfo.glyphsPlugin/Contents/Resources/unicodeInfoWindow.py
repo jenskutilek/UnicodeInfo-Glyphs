@@ -565,25 +565,12 @@ class UnicodeInfoWindow:
         # Check which orthographies use current unicode
         if self.glyph is None:
             # Show all
-            self.ortho_list = [o for o in sorted(self.ortho.orthographies)]
+            self.ortho_list = sorted(self.ortho.orthographies])
         else:
             if self.include_optional:
-                self.ortho_list = [
-                    o
-                    for o in sorted(
-                        self.ortho.get_orthographies_for_unicode_any(
-                            self.unicode
-                        )
-                    )
-                ]
+                self.ortho_list = sorted(self.ortho.get_orthographies_for_unicode_any(self.unicode))
             else:
-                self.ortho_list = [
-                    o
-                    for o in sorted(
-                        self.ortho.get_orthographies_for_unicode(self.unicode)
-                    )
-                ]
-
+                self.ortho_list = sorted(self.ortho.get_orthographies_for_unicode(self.unicode))
         self.orthographies_in_popup = [o.name for o in self.ortho_list]
         orthography_list_ui_strings = []
         # TODO: We need a strategy for when multiple glyphs are selected
