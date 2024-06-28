@@ -375,21 +375,22 @@ class UnicodeInfoWindow:
             if i < len(self.orthographies_in_popup):
                 self.selected_orthography = self.orthographies_in_popup[i]
                 self.w.orthography_list.set(i)
+                orthography = self.ortho_list[i]
                 if self.include_optional:
-                    is_supported = self.ortho_list[i].support_full
+                    is_supported = orthography.support_full
                 else:
-                    is_supported = self.ortho_list[i].support_basic
+                    is_supported = orthography.support_basic
                 self.w.orthography_add_missing.enable(not is_supported)
                 if not is_supported:
                     missing = (
-                        self.ortho_list[i].missing_base
-                        | self.ortho_list[i].missing_punctuation
+                        orthography.missing_base
+                        | orthography.missing_punctuation
                     )
                     if self.include_optional:
-                        missing |= self.ortho_list[i].missing_optional
+                        missing |= orthography.missing_optional
                     # print(
                     #     f"{len(missing)} codepoints missing from orthography "
-                    #     f"'{self.ortho_list[i].name}':\n"
+                    #     f"'{orthography.name}':\n"
                     #     f"{[hex(m) for m in missing]}"
                     # )
 
