@@ -403,9 +403,10 @@ class UnicodeInfoWindow:
                     # (from https://stackoverflow.com/a/48812729)
                     speakers = int(float("{:.2g}".format(orthography.speakers)))
                     if speakers >= 1000000:
-                        self.w.speakers_label.set("{0:g} M speakers".format(speakers/1000000))
+                        speakers_label_text = "{0:g} M speakers".format(speakers/1000000)
                     else:
-                        self.w.speakers_label.set("{:,} speakers".format(speakers))
+                        speakers_label_text = "{:,} speakers".format(speakers)
+                    self.w.speakers_label.set(speakers_label_text)
         else:
             self.selected_orthography = None
             self.w.orthography_add_missing.enable(False)
