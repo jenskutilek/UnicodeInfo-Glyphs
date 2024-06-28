@@ -27,7 +27,7 @@ class UnicodeInfoWindow:
             self.orth_present = False
 
         width = 320
-        height = 136
+        height = 156
 
         if self.orth_present:
             height += 37
@@ -120,6 +120,10 @@ class UnicodeInfoWindow:
                 "Show",
                 callback=self.showOrthography,
                 sizeStyle="small",
+            )
+            y += 20
+            self.w.speakers_label = TextBox(
+                (axis, y, 200, 20), "", sizeStyle="small"
             )
             y += 20
             self.w.include_optional = CheckBox(
@@ -365,6 +369,7 @@ class UnicodeInfoWindow:
 
     @objc.python_method
     def selectOrthography(self, sender=None, index=-1):
+        self.w.speakers_label.set("")
         if sender is None:
             i = index
             if i == -1 and len(self.orthographies_in_popup) > 0:
@@ -393,7 +398,15 @@ class UnicodeInfoWindow:
                     #     f"'{orthography.name}':\n"
                     #     f"{[hex(m) for m in missing]}"
                     # )
-
+                if orthography.code in self.info.speakers:
+                    speakers = self.info.speakers[orthography.code]
+                    # round to two significant decimal digits
+                    # (from https://stackoverflow.com/a/48812729)
+                    speakers = int(float("{:.2g}".format(speakers)))
+                    if speakers >= 1000000:
+                        self.w.speakers_label.set("{0:g} M speakers".format(speakers/1000000))
+                    else:
+                        self.w.speakers_label.set("{:,} speakers".format(speakers))
         else:
             self.selected_orthography = None
             self.w.orthography_add_missing.enable(False)
