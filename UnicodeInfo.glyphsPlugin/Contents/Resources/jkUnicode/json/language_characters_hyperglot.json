@@ -3683,7 +3683,7 @@
         }
     },
     "bs": {
-        "DFLT": {
+        "Cyrl": {
             "dflt": {
                 "name": "Bosnian",
                 "unicodes": {
@@ -3722,7 +3722,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Bosnian",
                 "unicodes": {
@@ -9233,7 +9233,7 @@
         }
     },
     "dgl": {
-        "DFLT": {
+        "Copt": {
             "dflt": {
                 "name": "Andaandi",
                 "unicodes": {
@@ -9272,7 +9272,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Andaandi",
                 "unicodes": {
@@ -10948,7 +10948,7 @@
         }
     },
     "fia": {
-        "DFLT": {
+        "Copt": {
             "dflt": {
                 "name": "Nobiin",
                 "unicodes": {
@@ -10987,7 +10987,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Nobiin",
                 "unicodes": {
@@ -38136,7 +38136,7 @@
         }
     },
     "ro": {
-        "DFLT": {
+        "Cyrl": {
             "dflt": {
                 "name": "Romanian",
                 "unicodes": {
@@ -38176,7 +38176,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Romanian",
                 "unicodes": {
@@ -39783,7 +39783,7 @@
         }
     },
     "sjt": {
-        "DFLT": {
+        "Cyrl": {
             "dflt": {
                 "name": "Ter Sami",
                 "unicodes": {
@@ -42588,7 +42588,7 @@
         }
     },
     "tk": {
-        "DFLT": {
+        "Cyrl": {
             "dflt": {
                 "name": "Turkmen",
                 "unicodes": {
@@ -42635,7 +42635,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Turkmen",
                 "unicodes": {
@@ -42950,7 +42950,7 @@
         }
     },
     "ug": {
-        "DFLT": {
+        "Cyrl": {
             "dflt": {
                 "name": "Uighur",
                 "unicodes": {
@@ -42994,7 +42994,7 @@
                 }
             }
         },
-        "Arab": {
+        "DFLT": {
             "dflt": {
                 "name": "Uighur",
                 "unicodes": {
@@ -44393,7 +44393,7 @@
         }
     },
     "xnz": {
-        "DFLT": {
+        "Copt": {
             "dflt": {
                 "name": "Kenzi",
                 "unicodes": {
@@ -44432,7 +44432,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Kenzi",
                 "unicodes": {
@@ -47422,7 +47422,7 @@
     },
     "yux": {},
     "zdj": {
-        "DFLT": {
+        "Arab": {
             "dflt": {
                 "name": "Ngazidja Comorian",
                 "unicodes": {
@@ -47465,7 +47465,7 @@
                 }
             }
         },
-        "Latn": {
+        "DFLT": {
             "dflt": {
                 "name": "Ngazidja Comorian",
                 "unicodes": {

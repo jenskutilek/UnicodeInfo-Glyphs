@@ -298,7 +298,10 @@ for code, data in languages:
 	except KeyError:
 		# seems to be a macrolanguage
 		continue
-	default_script =  script_codes[orthographies[0]['script']]
+	for orthography in orthographies:
+		if orthography['status'] == 'primary':
+			default_script = script_codes[orthography['script']]
+			break
 	language_dict = {}
 	for orthography in orthographies:
 		if data['validity'] == 'draft':
