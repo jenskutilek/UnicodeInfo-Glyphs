@@ -286,6 +286,7 @@ def code_points_reduced(str):
 	# TODO: Tidy this up?
 	return reduced_and_sorted(code_points)
 
+all_names = set()
 for code, data in languages:
 	try:
 		code = ISO_3letter_to_2letter[code]
@@ -330,7 +331,15 @@ for code, data in languages:
 			unicodes_dict['base'] = code_points_reduced(orthography['base'])
 			if 'auxiliary' in orthography:
 				unicodes_dict['optional'] = code_points_reduced(orthography['auxiliary'])
-			orthography_dict = {'name': data['name'], 'unicodes': unicodes_dict}
+			name = data['name']
+			if script != 'DFLT':
+				name += ' (' + orthography['script'] + ')'
+				# TODO: somehow store and transfer orthography['status'],
+				#       e.g. limit the number of “speakers”
+				# print(orthography['status'], name, '– default script', default_script)
+			assert(name not in all_names)
+			all_names.add(name)
+			orthography_dict = {'name': name, 'unicodes': unicodes_dict}
 			language_dict[script] = {territory: orthography_dict}
 	language_characters_hyperglot[code] = language_dict
 	# speakers:

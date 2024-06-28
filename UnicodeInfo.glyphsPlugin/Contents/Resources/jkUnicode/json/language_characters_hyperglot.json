@@ -1024,7 +1024,7 @@
         },
         "Cyrl": {
             "dflt": {
-                "name": "Assyrian Neo-Aramaic",
+                "name": "Assyrian Neo-Aramaic (Cyrillic)",
                 "unicodes": {
                     "base": [
                         100,
@@ -1062,7 +1062,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Assyrian Neo-Aramaic",
+                "name": "Assyrian Neo-Aramaic (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -2510,7 +2510,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "South Azerbaijani",
+                "name": "South Azerbaijani (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -2609,7 +2609,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "North Azerbaijani",
+                "name": "North Azerbaijani (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -3062,7 +3062,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Belarusian",
+                "name": "Belarusian (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -3381,7 +3381,7 @@
         },
         "Kthi": {
             "dflt": {
-                "name": "Bhojpuri",
+                "name": "Bhojpuri (Kaithi)",
                 "unicodes": {
                     "base": [
                         69763,
@@ -3685,7 +3685,7 @@
     "bs": {
         "Cyrl": {
             "dflt": {
-                "name": "Bosnian",
+                "name": "Bosnian (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -4096,7 +4096,7 @@
         },
         "Batk": {
             "dflt": {
-                "name": "Batak Dairi",
+                "name": "Batak Dairi (Batak)",
                 "unicodes": {
                     "base": [
                         7104,
@@ -4160,7 +4160,7 @@
         },
         "Batk": {
             "dflt": {
-                "name": "Batak Mandailing",
+                "name": "Batak Mandailing (Batak)",
                 "unicodes": {
                     "base": [
                         7104,
@@ -4232,7 +4232,7 @@
         },
         "Batk": {
             "dflt": {
-                "name": "Batak Simalungun",
+                "name": "Batak Simalungun (Batak)",
                 "unicodes": {
                     "base": [
                         7105,
@@ -4300,7 +4300,7 @@
         },
         "Batk": {
             "dflt": {
-                "name": "Batak Karo",
+                "name": "Batak Karo (Batak)",
                 "unicodes": {
                     "base": [
                         7104,
@@ -4551,7 +4551,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Mongolia Buriat",
+                "name": "Mongolia Buriat (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -4635,7 +4635,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Russia Buriat",
+                "name": "Russia Buriat (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -4719,7 +4719,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "China Buriat",
+                "name": "China Buriat (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -5739,7 +5739,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Central Kurdish",
+                "name": "Central Kurdish (Arabic)",
                 "unicodes": {
                     "base": [
                         1575,
@@ -8309,7 +8309,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Mandarin Chinese",
+                "name": "Mandarin Chinese (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -8454,7 +8454,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Montenegrin",
+                "name": "Montenegrin (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -9235,7 +9235,7 @@
     "dgl": {
         "Copt": {
             "dflt": {
-                "name": "Andaandi",
+                "name": "Andaandi (Coptic)",
                 "unicodes": {
                     "base": [
                         772,
@@ -9368,7 +9368,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Dogri (individual language)",
+                "name": "Dogri (individual language) (Arabic)",
                 "unicodes": {
                     "base": [
                         1569,
@@ -10272,7 +10272,7 @@
         },
         "Nkoo": {
             "dflt": {
-                "name": "Eastern Maninkakan",
+                "name": "Eastern Maninkakan (N'Ko)",
                 "unicodes": {
                     "base": [
                         1994,
@@ -10950,7 +10950,7 @@
     "fia": {
         "Copt": {
             "dflt": {
-                "name": "Nobiin",
+                "name": "Nobiin (Coptic)",
                 "unicodes": {
                     "base": [
                         772,
@@ -15366,7 +15366,7 @@
         },
         "Java": {
             "dflt": {
-                "name": "Javanese",
+                "name": "Javanese (Javanese)",
                 "unicodes": {
                     "base": [
                         43396,
@@ -15512,7 +15512,7 @@
         },
         "Hebr": {
             "dflt": {
-                "name": "Judeo-Tat",
+                "name": "Judeo-Tat (Hebrew)",
                 "unicodes": {
                     "base": [
                         1460,
@@ -15547,7 +15547,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Judeo-Tat",
+                "name": "Judeo-Tat (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -17676,7 +17676,7 @@
         },
         "Hira": {
             "dflt": {
-                "name": "Japanese",
+                "name": "Japanese (Hiragana)",
                 "unicodes": {
                     "base": [
                         98,
@@ -17774,7 +17774,7 @@
         },
         "Kana": {
             "dflt": {
-                "name": "Japanese",
+                "name": "Japanese (Katakana)",
                 "unicodes": {
                     "base": [
                         12448,
@@ -17895,7 +17895,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Japanese",
+                "name": "Japanese (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -19335,7 +19335,7 @@
         },
         "Cyrl": {
             "dflt": {
-                "name": "Northern Kurdish",
+                "name": "Northern Kurdish (Cyrillic)",
                 "unicodes": {
                     "base": [
                         39,
@@ -30736,7 +30736,7 @@
         },
         "Hani": {
             "dflt": {
-                "name": "Korean",
+                "name": "Korean (Hanja)",
                 "unicodes": {
                     "base": [
                         19992,
@@ -33920,7 +33920,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Hassaniyya",
+                "name": "Hassaniyya (Arabic)",
                 "unicodes": {
                     "base": [
                         1575,
@@ -36385,7 +36385,7 @@
         },
         "Linb": {
             "dflt": {
-                "name": "Minoan",
+                "name": "Minoan (Linear B)",
                 "unicodes": {
                     "base": [
                         65536,
@@ -36836,7 +36836,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Ossetian",
+                "name": "Ossetian (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -37023,7 +37023,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Panjabi",
+                "name": "Panjabi (Arabic)",
                 "unicodes": {
                     "base": [
                         1569,
@@ -37360,7 +37360,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Western Panjabi",
+                "name": "Western Panjabi (Arabic)",
                 "unicodes": {
                     "base": [
                         1569,
@@ -38004,7 +38004,7 @@
         },
         "Cyrl": {
             "dflt": {
-                "name": "Balkan Romani",
+                "name": "Balkan Romani (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -38138,7 +38138,7 @@
     "ro": {
         "Cyrl": {
             "dflt": {
-                "name": "Romanian",
+                "name": "Romanian (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -38591,7 +38591,7 @@
         },
         "Kana": {
             "dflt": {
-                "name": "Okinawan",
+                "name": "Okinawan (Katakana)",
                 "unicodes": {
                     "base": [
                         12448,
@@ -39785,7 +39785,7 @@
     "sjt": {
         "Cyrl": {
             "dflt": {
-                "name": "Ter Sami",
+                "name": "Ter Sami (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -40388,7 +40388,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Sindhi",
+                "name": "Sindhi (Arabic)",
                 "unicodes": {
                     "base": [
                         1569,
@@ -40825,7 +40825,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Serbian",
+                "name": "Serbian (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -40910,7 +40910,7 @@
         },
         "Sund": {
             "dflt": {
-                "name": "Sundanese",
+                "name": "Sundanese (Sundanese)",
                 "unicodes": {
                     "base": [
                         7043,
@@ -41241,7 +41241,7 @@
         },
         "Tibt": {
             "dflt": {
-                "name": "Eastern Tamang",
+                "name": "Eastern Tamang (Tibetan)",
                 "unicodes": {
                     "base": [
                         3904,
@@ -42590,7 +42590,7 @@
     "tk": {
         "Cyrl": {
             "dflt": {
-                "name": "Turkmen",
+                "name": "Turkmen (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -42952,7 +42952,7 @@
     "ug": {
         "Cyrl": {
             "dflt": {
-                "name": "Uighur",
+                "name": "Uighur (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -43037,7 +43037,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Uighur",
+                "name": "Uighur (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -43376,7 +43376,7 @@
         },
         "Cyrl": {
             "dflt": {
-                "name": "Northern Uzbek",
+                "name": "Northern Uzbek (Cyrillic)",
                 "unicodes": {
                     "base": [
                         1072,
@@ -44395,7 +44395,7 @@
     "xnz": {
         "Copt": {
             "dflt": {
-                "name": "Kenzi",
+                "name": "Kenzi (Coptic)",
                 "unicodes": {
                     "base": [
                         772,
@@ -47424,7 +47424,7 @@
     "zdj": {
         "Arab": {
             "dflt": {
-                "name": "Ngazidja Comorian",
+                "name": "Ngazidja Comorian (Arabic)",
                 "unicodes": {
                     "base": [
                         1575,
@@ -47567,7 +47567,7 @@
         },
         "Latn": {
             "dflt": {
-                "name": "Standard Moroccan Tamazight",
+                "name": "Standard Moroccan Tamazight (Latin)",
                 "unicodes": {
                     "base": [
                         97,
@@ -47717,7 +47717,7 @@
         },
         "Arab": {
             "dflt": {
-                "name": "Standard Malay",
+                "name": "Standard Malay (Arabic)",
                 "unicodes": {
                     "base": [
                         1569,
