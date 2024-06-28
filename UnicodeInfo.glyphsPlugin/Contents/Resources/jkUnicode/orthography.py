@@ -525,7 +525,8 @@ class OrthographyInfo:
         for o in self.orthographies:
             o.fill_from_default_orthography()
         if sort_by_speakers:
-            self.orthographies.sort(key=lambda o: o.speakers, reverse=True)
+            self.orthographies.sort(key=lambda o: o.speakers if o.script == "DFLT" else o.speakers / 2097152, reverse=True)
+            # ^ This divisor almost guarantees that non-DFLT orthographies appear at the end of the list
         self._language_names = dict_from_file(data_path, "languages")
         self._script_names = dict_from_file(data_path, "scripts")
         self._territory_names = dict_from_file(data_path, "territories")
