@@ -487,7 +487,7 @@ class OrthographyInfo:
     recommended to instantiate it once and then reuse it.
     """
 
-    def __init__(self, ui: Optional[UniInfo] = None, source="CDLR") -> None:
+    def __init__(self, ui: Optional[UniInfo] = None, source="CDLR", sort_by_speakers=True) -> None:
         # We need a UniInfo object
         if ui is None:
             self.ui = UniInfo()
@@ -524,7 +524,8 @@ class OrthographyInfo:
                     i += 1
         for o in self.orthographies:
             o.fill_from_default_orthography()
-
+        if sort_by_speakers:
+            self.orthographies.sort(key=lambda o: o.speakers, reverse=True)
         self._language_names = dict_from_file(data_path, "languages")
         self._script_names = dict_from_file(data_path, "scripts")
         self._territory_names = dict_from_file(data_path, "territories")
