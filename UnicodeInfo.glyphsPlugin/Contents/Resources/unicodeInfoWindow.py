@@ -565,7 +565,7 @@ class UnicodeInfoWindow:
         # Check which orthographies use current unicode
         if self.glyph is None:
             # Show all
-            self.ortho_list = sorted(self.ortho.orthographies])
+            self.ortho_list = sorted(self.ortho.orthographies)
         else:
             if self.include_optional:
                 self.ortho_list = sorted(self.ortho.get_orthographies_for_unicode_any(self.unicode))
