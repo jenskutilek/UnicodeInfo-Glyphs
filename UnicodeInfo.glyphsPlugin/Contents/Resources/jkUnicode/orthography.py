@@ -510,6 +510,7 @@ class OrthographyInfo:
         data_path = Path(__file__).resolve().parent / "json"
         json_file = {"CDLR": "language_characters", "Hyperglot": "language_characters_hyperglot"}[source]
         master = dict_from_file(data_path, json_file)
+        self.source_display_name = "the\u00A0CLDR" if source == "CLDR" else source
         language_speakers = dict_from_file(data_path, "language_speakers")
         self.ignored_unicodes = set(
             [
