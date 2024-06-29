@@ -123,7 +123,7 @@ class UnicodeInfoWindow:
             )
             y += 20
             self.w.speakers_label = TextBox(
-                (axis, y, 200, 20), "", sizeStyle="small"
+                (axis, y, 220, 20), "", sizeStyle="small"
             )
             y += 20
             self.w.include_optional = CheckBox(
