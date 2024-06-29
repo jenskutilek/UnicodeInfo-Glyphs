@@ -259,9 +259,6 @@ script_codes = {
 	"Code for uncoded script": "Zzzz",
 }
 
-with open("jkUnicode/json/ignored_languages.json", "r") as text_file:
-	ignored_languages = json.load(text_file)
-
 language_characters_hyperglot = {}
 language_speakers_combined = language_speakers_CLDR
 languages = sorted(dict(hyperglot.languages.Languages()).items())
@@ -293,8 +290,6 @@ for code, data in languages:
 		code = ISO_3letter_to_2letter[code]
 	except KeyError:
 		pass
-	if code in ignored_languages:
-		continue
 	try:
 		orthographies = data['orthographies']
 	except KeyError:
