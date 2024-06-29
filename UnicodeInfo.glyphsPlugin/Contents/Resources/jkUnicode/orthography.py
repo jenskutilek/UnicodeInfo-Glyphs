@@ -338,6 +338,19 @@ class Orthography:
             return True
         return False
 
+    def speakers_supported_by_unicode(self, u: int) -> int:
+        """
+        If the character was removed from the font,
+        how many fewer speakers would the font support?
+        """
+        if self.num_missing_base != 0:
+            # Not even basic support, nothing to lose
+            return 0
+        if not u in self.unicodes_any:
+            # Not required at all
+            return 0
+        return self.speakers
+
     def scan_cmap(self) -> None:
         """
         Scan the orthography against the current parent cmap. This fills in a
@@ -722,6 +735,12 @@ class OrthographyInfo:
         return [
             o for o in self.orthographies if o.almost_supported_punctuation()
         ]
+
+    def speakers_supported_by_unicode(self, u: int) -> int:
+        speakers_supported = 0
+        for o in self.orthographies:
+            speakers_supported += o.speakers_supported_by_unicode(u)
+        return speakers_supported
 
     def get_kern_list(self, include_optional=False) -> Set[FrozenSet[int]]:
         """

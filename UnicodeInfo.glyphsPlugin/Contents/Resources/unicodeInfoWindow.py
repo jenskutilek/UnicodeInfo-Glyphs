@@ -27,7 +27,7 @@ class UnicodeInfoWindow:
             self.orth_present = False
 
         width = 320
-        height = 156
+        height = 188
 
         if self.orth_present:
             height += 37
@@ -126,6 +126,10 @@ class UnicodeInfoWindow:
                 (axis, y, 220, 20), "", sizeStyle="small"
             )
             y += 20
+            self.w.speakers_supported_label = TextBox(
+                (axis, y, 220, 32), "", sizeStyle="small"
+            )
+            y += 32
             self.w.include_optional = CheckBox(
                 (axis, y, 200, 20),
                 "Include optional characters",
@@ -567,6 +571,8 @@ class UnicodeInfoWindow:
 
     @objc.python_method
     def _updateOrthographies(self):
+        self.w.speakers_label.set("")
+        self.w.speakers_supported_label.set("")
         if not self.orth_present:
             return
         # Check which orthographies use current unicode
@@ -592,7 +598,6 @@ class UnicodeInfoWindow:
                 ui_string += " [optional]"
             orthography_list_ui_strings.append(ui_string)
         self.w.orthography_list.setItems(orthography_list_ui_strings)
-
         if len(self.ortho_list) == 0:
             self.w.orthography_list.enable(False)
             self.w.show_orthography.enable(False)
@@ -607,6 +612,20 @@ class UnicodeInfoWindow:
                 self.selectOrthography(index=new_index)
             except (ValueError, AttributeError):
                 self.selected_orthography = self.orthographies_in_popup[0]
+            speakers_supported = self.ortho.speakers_supported_by_unicode(self.unicode)
+            if speakers_supported == 0:
+                # [Tim] This was the main goal of extending this tool:
+                # To detect useless characters, i.e. those that are not required or optional
+                # in any orthography that has at least base support.
+                #
+                # In other words, the current character can be removed from the font
+                # without reducing the language support.
+                #
+                # FWIW, this situation corresponds to having only empty circles in the list of orthographies
+                # (with or without “include optional” checked)
+                self.w.speakers_supported_label.set("⚠ This character does not help support any\u00A0speakers.")
+            else:
+                self.w.speakers_supported_label.set("This character helps support " + self.speakers_as_string(speakers_supported) + ".")
 
     @objc.python_method
     def _updateGlyph(self):
