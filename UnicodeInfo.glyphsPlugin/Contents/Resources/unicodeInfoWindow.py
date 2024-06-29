@@ -367,6 +367,17 @@ class UnicodeInfoWindow:
             self.ortho = self.ortho_hyperglot
         self._updateOrthographies()
 
+    def speakers_as_string(self, speakers):
+        if speakers == 0:
+            return ""
+        # round to two significant decimal digits
+        # (from https://stackoverflow.com/a/48812729)
+        speakers = int(float("{:.2g}".format(speakers)))
+        if speakers >= 1000000:
+            return "{0:g}\u00A0M\u00A0speakers".format(speakers/1000000)
+        else:
+            return "{:,}\u00A0speakers".format(speakers)
+
     @objc.python_method
     def selectOrthography(self, sender=None, index=-1):
         self.w.speakers_label.set("")
@@ -399,13 +410,7 @@ class UnicodeInfoWindow:
                     #     f"{[hex(m) for m in missing]}"
                     # )
                 if orthography.speakers != 0:
-                    # round to two significant decimal digits
-                    # (from https://stackoverflow.com/a/48812729)
-                    speakers = int(float("{:.2g}".format(orthography.speakers)))
-                    if speakers >= 1000000:
-                        speakers_label_text = "{0:g} M speakers".format(speakers/1000000)
-                    else:
-                        speakers_label_text = "{:,} speakers".format(speakers)
+                    speakers_label_text = self.speakers_as_string(orthography.speakers)
                     if orthography.script != "DFLT":
                         speakers_label_text += " (non-default script)"
                     self.w.speakers_label.set(speakers_label_text)
