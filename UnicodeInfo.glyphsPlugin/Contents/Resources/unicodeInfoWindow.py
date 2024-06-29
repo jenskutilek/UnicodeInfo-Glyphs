@@ -601,7 +601,8 @@ class UnicodeInfoWindow:
         if len(self.ortho_list) == 0:
             self.w.orthography_list.enable(False)
             self.w.show_orthography.enable(False)
-            self.w.speakers_supported_label.set("⚠ This character is not used in\u00A0" + self.ortho.source_display_name + ".")
+            if self.unicode:
+               self.w.speakers_supported_label.set("⚠ This character is not used in\u00A0" + self.ortho.source_display_name + ".")
         else:
             self.w.orthography_list.enable(True)
             self.w.show_orthography.enable(
