@@ -95,6 +95,12 @@ class Orthography:
             u_list = []
         self.unicodes_base = (
             set(u_list + self.cased(u_list)) - self.ignored_unicodes
+            # TODO: For some characters we are currently not generating the all-caps version.
+            # example: ǆ (LATIN SMALL LETTER DZ WITH CARON)
+            #          should be converted to
+            #          ǅ (LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON)
+            #          as well as
+            #          Ǆ (LATIN CAPITAL LETTER DZ WITH CARON)
         )
 
         try:
