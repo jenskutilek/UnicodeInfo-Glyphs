@@ -6,13 +6,17 @@ from jkUnicode import UniInfo, get_expanded_glyph_list
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
-
+from Foundation import NSBundle
+from AppKit import NSImage
+import webbrowser
+import urllib.parse
 
 class UnicodeInfoWindow:
     @objc.python_method
     def build_window(self, manual_update=False):
         from vanilla import (
             Button,
+            ImageButton,
             CheckBox,
             FloatingWindow,
             PopUpButton,
@@ -59,9 +63,22 @@ class UnicodeInfoWindow:
         self.w.code = TextBox(
             (axis, y, -10, 20), u"", sizeStyle="small"
         )
+        if hasattr(self, "__file__"):
+            path = self.__file__()
+            thisBundle = NSBundle.bundleWithPath_(path[:path.rfind("Contents/Resources/")])
+        else:
+            thisBundle = NSBundle.bundleForClass_(NSClassFromString(self.className()))
+        wikipedia_icon = NSImage.alloc().initWithContentsOfFile_(thisBundle.pathForImageResource_("wikipedia_icon"))
+        self.w.wiki_character = ImageButton(
+            (-94, y - 1.5, 16, 16),
+            imageObject=wikipedia_icon,
+            callback=self.showWikiCharacter,
+            bordered=False,
+            sizeStyle="small",
+        )
         self.w.reassign_unicodes = Button(
-            (-81, y - 6, -10, 25),
-            "Assign All",
+            (-72, y - 6, -10, 25),
+            "Assign all",
             callback=self.reassignUnicodes,
             sizeStyle="small",
         )
@@ -73,8 +90,8 @@ class UnicodeInfoWindow:
             (axis, y, -10, 20), u"", sizeStyle="small"
         )
         self.w.case = Button(
-            (-81, y - 6, -10, 25),
-            "\u2191 \u2193 Case",
+            (-72, y - 6, -10, 25),
+            "\u2191\u2193 Case",
             callback=self.toggleCase,
             sizeStyle="small",
         )
@@ -83,13 +100,13 @@ class UnicodeInfoWindow:
             (8, y, axis - 10, 20), "Block", sizeStyle="small"
         )
         self.w.block_list = PopUpButton(
-            (axis, y - 4, -68, 20),
+            (axis, y - 4, -101, 20),
             [],
             callback=self.selectBlock,
             sizeStyle="small",
         )
         self.w.show_block = Button(
-            (-60, y - 6, -10, 25),
+            (-72, y - 6, -10, 25),
             "Show",
             callback=self.showBlock,
             sizeStyle="small",
@@ -100,7 +117,7 @@ class UnicodeInfoWindow:
                 (8, y, axis - 5, 20), "Source", sizeStyle="small"
             )
             self.w.database_list = PopUpButton(
-                (axis, y - 4, -68, 20),
+                (axis, y - 4, -101, 20),
                 ['Hyperglot','CDLR'],
                 callback=self.selectDatabase,
                 sizeStyle="small",
@@ -110,13 +127,20 @@ class UnicodeInfoWindow:
                 (8, y, axis - 10, 20), "Usage", sizeStyle="small"
             )
             self.w.orthography_list = PopUpButton(
-                (axis, y - 4, -68, 20),
+                (axis, y - 4, -101, 20),
                 [],
                 callback=self.selectOrthography,
                 sizeStyle="small",
             )
+            self.w.wiki_orthography = ImageButton(
+                (-94, y - 1.5, 16, 16),
+                imageObject=wikipedia_icon,
+                callback=self.showWikiOrthography,
+                bordered=False,
+                sizeStyle="small",
+            )
             self.w.show_orthography = Button(
-                (-60, y - 6, -10, 25),
+                (-72, y - 6, -10, 25),
                 "Show",
                 callback=self.showOrthography,
                 sizeStyle="small",
@@ -381,6 +405,21 @@ class UnicodeInfoWindow:
             return "{0:g}\u00A0M\u00A0speakers".format(speakers/1000000)
         else:
             return "{:,}\u00A0speakers".format(speakers)
+
+    @objc.python_method
+    def showWikiCharacter(self, sender=None):
+        if not self.unicode:
+            return
+        url = "https://en.wikipedia.org/w/index.php?title=Special:Search&search=" + urllib.parse.quote(chr(self.unicode), safe='')
+        webbrowser.open(url)
+
+    @objc.python_method
+    def showWikiOrthography(self, sender=None):
+        if not self.unicode:
+            return
+        search_string = self.selected_orthography.split("(")[0] + " language"
+        url = "https://en.wikipedia.org/w/index.php?title=Special:Search&search=" + urllib.parse.quote(search_string, safe='')
+        webbrowser.open(url)
 
     @objc.python_method
     def selectOrthography(self, sender=None, index=-1):
