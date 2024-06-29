@@ -197,6 +197,7 @@ class UnicodeInfoWindow:
         self.case = None
         self.view = None
         self.selectedGlyphs = ()
+        self.selected_orthography = None
         self.include_optional = False
         self.w.reassign_unicodes.enable(False)
         self.all_unicodes_in_font = set()
@@ -415,7 +416,7 @@ class UnicodeInfoWindow:
 
     @objc.python_method
     def showWikiOrthography(self, sender=None):
-        if not self.unicode:
+        if not self.selected_orthography:
             return
         search_string = self.selected_orthography.split("(")[0] + " language"
         url = "https://en.wikipedia.org/w/index.php?title=Special:Search&search=" + urllib.parse.quote(search_string, safe='')
@@ -651,7 +652,7 @@ class UnicodeInfoWindow:
             try:
                 new_index = self.orthographies_in_popup.index(self.selected_orthography)
                 self.selectOrthography(index=new_index)
-            except (ValueError, AttributeError):
+            except ValueError:
                 self.selected_orthography = self.orthographies_in_popup[0]
             speakers_supported = self.ortho.speakers_supported_by_unicode(self.unicode)
             if speakers_supported == 0:
