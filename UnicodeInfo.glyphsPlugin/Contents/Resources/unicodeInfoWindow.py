@@ -124,7 +124,7 @@ class UnicodeInfoWindow:
             )
             y += 16
             self.w.include_optional = CheckBox(
-                (axis, y, 200, 20),
+                (axis + 4, y, 200, 20),
                 "Include optional characters",
                 callback=self.includeOptional,
                 sizeStyle="small",
@@ -164,19 +164,19 @@ class UnicodeInfoWindow:
         if manual_update:
             y += 24
             self.w.block_add_missing = Button(
-                (-290, y - 6, -226, 25),
+                (axis, y - 6, 72, 25),
                 "Fill Block",
                 callback=self.addMissingBlock,
                 sizeStyle="small",
             )
             self.w.orthography_add_missing = Button(
-                (-218, y - 6, -154, 25),
+                (axis + 76, y - 6, 72, 25),
                 "Fill Orth.",
                 callback=self.addMissingOrthography,
                 sizeStyle="small",
             )
             self.w.reset_filter = Button(
-                (-146, y - 6, -68, 25),
+                (-88, y - 6, -10, 25),
                 "Reset Filter",
                 callback=self.resetFilter,
                 sizeStyle="small",
