@@ -31,7 +31,7 @@ class UnicodeInfoWindow:
             self.orth_present = False
 
         width = 320
-        height = 188
+        height = 200
 
         if self.orth_present:
             height += 37
@@ -112,7 +112,7 @@ class UnicodeInfoWindow:
             sizeStyle="small",
         )
         if self.orth_present:
-            y += 20
+            y += 24
             self.w.database_label = TextBox(
                 (8, y, axis - 5, 20), "Source", sizeStyle="small"
             )
@@ -122,7 +122,14 @@ class UnicodeInfoWindow:
                 callback=self.selectDatabase,
                 sizeStyle="small",
             )
-            y += 20
+            y += 16
+            self.w.include_optional = CheckBox(
+                (axis, y, 200, 20),
+                "Include optional characters",
+                callback=self.includeOptional,
+                sizeStyle="small",
+            )
+            y += 28
             self.w.orthography_label = TextBox(
                 (8, y, axis - 10, 20), "Usage", sizeStyle="small"
             )
@@ -149,17 +156,11 @@ class UnicodeInfoWindow:
             self.w.speakers_label = TextBox(
                 (axis, y, 220, 20), "", sizeStyle="small"
             )
-            y += 20
+            y += 24
             self.w.speakers_supported_label = TextBox(
                 (axis, y, 220, 32), "", sizeStyle="small"
             )
-            y += 32
-            self.w.include_optional = CheckBox(
-                (axis, y, 200, 20),
-                "Include optional characters",
-                callback=self.includeOptional,
-                sizeStyle="small",
-            )
+            y += 12
         if manual_update:
             y += 24
             self.w.block_add_missing = Button(
