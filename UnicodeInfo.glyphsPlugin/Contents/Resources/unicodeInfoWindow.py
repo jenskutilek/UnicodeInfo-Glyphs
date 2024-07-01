@@ -652,9 +652,7 @@ class UnicodeInfoWindow:
                self.w.speakers_supported_label.set("⚠ This character is not used in\u00A0" + self.ortho.source_display_name + ".")
         else:
             self.w.orthography_list.enable(True)
-            self.w.show_orthography.enable(
-                self.in_font_view and not self.filtered
-            )
+            self.w.show_orthography.enable(self.in_font_view)
             # If the old name is in the new list, select it
             try:
                 new_index = self.orthographies_in_popup.index(self.selected_orthography)
@@ -771,6 +769,8 @@ class UnicodeInfoWindow:
     @objc.python_method
     def showOrthography(self, sender=None):
         # Callback for the "Show" button of the Orthographies list
+        if self.filtered:
+            self._resetFilter()
         if sender is None:
             return
 
@@ -794,7 +794,6 @@ class UnicodeInfoWindow:
         self.w.reset_filter.enable(True)
         self.filtered = True
         self.w.show_block.enable(False)
-        self.w.show_orthography.enable(False)
 
     @objc.python_method
     def get_block_glyph_list(self, block, font, markers=True, reserved=True):
