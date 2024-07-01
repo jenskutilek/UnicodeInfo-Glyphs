@@ -203,7 +203,7 @@ class UnicodeInfoWindow:
         self.w.reassign_unicodes.enable(False)
         self.all_unicodes_in_font = set()
         for glyph in self.font_fallback.glyphs:
-            if glyph.unicodes:
+            if glyph.unicodes and glyph.export:
                 for uni_hex_str in glyph.unicodes:
                     self.all_unicodes_in_font.add(int(uni_hex_str, 16))
 
@@ -251,7 +251,7 @@ class UnicodeInfoWindow:
             if self.orth_present:
                 cmap = set()
                 for g in self.font_glyphs:
-                    if g.unicodes:
+                    if g.unicodes and g.export:
                         cmap |= self.glyph_unicodes(g)
                 self.ortho.cmap = {u: None for u in cmap}
 
