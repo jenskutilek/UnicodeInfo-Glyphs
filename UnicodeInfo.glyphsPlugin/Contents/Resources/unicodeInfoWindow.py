@@ -427,8 +427,14 @@ class UnicodeInfoWindow:
         self.w.speakers_label.set("")
         if sender is None:
             i = index
-            if i == -1 and len(self.orthographies_in_popup) > 0:
-                i = self.w.orthography_list.get()
+            if i == -1:
+                # Select the first supported language:
+                for j in range(len(self.ortho_list)):
+                    if self.ortho_list[j].support_basic:
+                        i = j
+                        break
+                else:
+                    i = 0
         else:
             i = sender.get()
         if i > -1:
@@ -653,7 +659,7 @@ class UnicodeInfoWindow:
                 new_index = self.orthographies_in_popup.index(self.selected_orthography)
                 self.selectOrthography(index=new_index)
             except ValueError:
-                self.selectOrthography(index=0)
+                self.selectOrthography(index=-1)
             speakers_supported = self.ortho.speakers_supported_by_unicode(self.unicode)
             if speakers_supported == 0:
                 # [Tim] This was the main goal of extending this tool:
