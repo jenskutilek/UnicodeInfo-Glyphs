@@ -653,7 +653,7 @@ class UnicodeInfoWindow:
                 new_index = self.orthographies_in_popup.index(self.selected_orthography)
                 self.selectOrthography(index=new_index)
             except ValueError:
-                self.selected_orthography = self.orthographies_in_popup[0]
+                self.selectOrthography(index=0)
             speakers_supported = self.ortho.speakers_supported_by_unicode(self.unicode)
             if speakers_supported == 0:
                 # [Tim] This was the main goal of extending this tool:
