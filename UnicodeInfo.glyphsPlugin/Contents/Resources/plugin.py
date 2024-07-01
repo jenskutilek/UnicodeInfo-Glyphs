@@ -17,7 +17,7 @@ def add_glyphs_to_font(glyph_names, font):
     glyphs = [GSGlyph(n) for n in glyph_list]
     font.glyphs.extend(glyphs)
     font.enableUpdateInterface()
-    set_selection(font, glyph_names, deselect=True)
+    set_selection(font, glyph_list, deselect=True)
 
 
 def set_filter(font=None, glyph_names=None):
