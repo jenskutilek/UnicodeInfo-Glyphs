@@ -41,17 +41,11 @@ def set_selection(font, glyph_names, deselect=False):
         font.glyphs[g].selected = True
 
 
-# class GlyphsUnicodeInfoWindow(UnicodeInfoWindow):
-#     pass
-
-
 class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     @objc.python_method
     def settings(self):
         self.hasNotification = False
-        self.name = Glyphs.localize(
-            {"en": "Unicode Info", "de": "Unicode-Info"}
-        )
+        self.name = Glyphs.localize({"en": "Unicode Info", "de": "Unicode-Info"})
 
     def showWindow_(self, sender):
         self.glyph = None
@@ -110,11 +104,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         # We’re in the Font view
         else:
             self.in_font_view = True
-            if (
-                font
-                and font.parent.windowController()
-                and len(font.selection) == 1
-            ):
+            if font and font.parent.windowController() and len(font.selection) == 1:
                 glyph = font.selection[0]
                 self.glyph_name = glyph.name
                 self.glyph = glyph
