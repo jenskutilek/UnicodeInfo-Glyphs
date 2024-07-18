@@ -4,8 +4,8 @@ from AppKit import NSMenuItem
 from GlyphsApp import Glyphs, GSGlyph, WINDOW_MENU, UPDATEINTERFACE
 from GlyphsApp.plugins import GeneralPlugin
 
-from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from unicodeInfoWindow import UnicodeInfoWindow
+from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 
 
 def add_glyphs_to_font(glyph_names, font):
