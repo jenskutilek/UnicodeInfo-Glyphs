@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import objc
 
 from jkUnicode import UniInfo, get_expanded_glyph_list
