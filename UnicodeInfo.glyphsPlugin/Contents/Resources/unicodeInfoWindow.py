@@ -111,7 +111,7 @@ class UnicodeInfoWindow:
             )
             self.w.database_list = PopUpButton(
                 (axis, y - 4, -101, 20),
-                ['Hyperglot','CDLR'],
+                ["Hyperglot", "CLDR"],
                 callback=self.selectDatabase,
                 sizeStyle="small",
             )
@@ -182,7 +182,7 @@ class UnicodeInfoWindow:
         self.info = UniInfo(0)
         self.unicode = None
         if self.orth_present:
-            self.ortho_cdlr = OrthographyInfo(ui=self.info,source="CDLR")
+            self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
             self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
             self.ortho = self.ortho_hyperglot
             self.ortho_list = []
@@ -383,7 +383,7 @@ class UnicodeInfoWindow:
 
     @objc.python_method
     def selectDatabase(self, sender=None):
-        if sender.getTitle() == 'CDLR':
+        if sender.getTitle() == "CLDR":
             self.ortho = self.ortho_cdlr
         else:
             assert sender.getTitle() == "Hyperglot"
