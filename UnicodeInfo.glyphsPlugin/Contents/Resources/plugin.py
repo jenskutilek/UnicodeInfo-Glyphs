@@ -200,7 +200,10 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         if font.disablesNiceNames:
             u = getUnicodeForGlyphname(name)
         else:
-            glyphInfo = font.glyphs[name].glyphInfo
+            g = font.glyphs[name]
+            if g is None:
+                return None
+            glyphInfo = g.glyphInfo
             if glyphInfo is None:
                 return None
 
