@@ -2,10 +2,11 @@ import objc
 
 from jkUnicode import UniInfo, get_expanded_glyph_list
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+from jkUnicode.orthography import OrthographyInfo
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
 from Foundation import NSBundle
-from AppKit import NSImage
+from AppKit import NSClassFromString, NSImage
 import webbrowser
 import urllib.parse
 
@@ -22,18 +23,9 @@ class UnicodeInfoWindow:
             TextBox,
         )
 
-        try:
-            from jkUnicode.orthography import OrthographyInfo
-
-            self.orth_present = True
-        except ImportError:
-            self.orth_present = False
-
         width = 320
-        height = 200
+        height = 240
 
-        if self.orth_present:
-            height += 37
         if manual_update:
             # Make room for an additional button
             height += 22
@@ -104,54 +96,54 @@ class UnicodeInfoWindow:
             callback=self.showBlock,
             sizeStyle="small",
         )
-        if self.orth_present:
-            y += 24
-            self.w.database_label = TextBox(
-                (8, y, axis - 5, 20), "Source", sizeStyle="small"
-            )
-            self.w.database_list = PopUpButton(
-                (axis, y - 4, -101, 20),
-                ["Hyperglot", "CLDR"],
-                callback=self.selectDatabase,
-                sizeStyle="small",
-            )
-            y += 16
-            self.w.include_optional = CheckBox(
-                (axis + 4, y, 200, 20),
-                "Include optional characters",
-                callback=self.includeOptional,
-                sizeStyle="small",
-            )
-            y += 28
-            self.w.orthography_label = TextBox(
-                (8, y, axis - 10, 20), "Usage", sizeStyle="small"
-            )
-            self.w.orthography_list = PopUpButton(
-                (axis, y - 4, -101, 20),
-                [],
-                callback=self.selectOrthography,
-                sizeStyle="small",
-            )
-            self.w.wiki_orthography = ImageButton(
-                (-94, y - 1.5, 16, 16),
-                imageObject=wikipedia_icon,
-                callback=self.showWikiOrthography,
-                bordered=False,
-                sizeStyle="small",
-            )
-            self.w.show_orthography = Button(
-                (-72, y - 6, -10, 25),
-                "Show",
-                callback=self.showOrthography,
-                sizeStyle="small",
-            )
-            y += 20
-            self.w.speakers_label = TextBox((axis, y, 220, 20), "", sizeStyle="small")
-            y += 24
-            self.w.speakers_supported_label = TextBox(
-                (axis, y, 220, 32), "", sizeStyle="small"
-            )
-            y += 12
+        y += 24
+        self.w.database_label = TextBox(
+            (8, y, axis - 5, 20), "Source", sizeStyle="small"
+        )
+        self.w.database_list = PopUpButton(
+            (axis, y - 4, -101, 20),
+            ["Hyperglot", "CLDR"],
+            callback=self.selectDatabase,
+            sizeStyle="small",
+        )
+        y += 16
+        self.w.include_optional = CheckBox(
+            (axis + 4, y, 200, 20),
+            "Include optional characters",
+            callback=self.includeOptional,
+            sizeStyle="small",
+        )
+        y += 28
+        self.w.orthography_label = TextBox(
+            (8, y, axis - 10, 20), "Usage", sizeStyle="small"
+        )
+        self.w.orthography_list = PopUpButton(
+            (axis, y - 4, -101, 20),
+            [],
+            callback=self.selectOrthography,
+            sizeStyle="small",
+        )
+        self.w.wiki_orthography = ImageButton(
+            (-94, y - 1.5, 16, 16),
+            imageObject=wikipedia_icon,
+            callback=self.showWikiOrthography,
+            bordered=False,
+            sizeStyle="small",
+        )
+        self.w.show_orthography = Button(
+            (-72, y - 6, -10, 25),
+            "Show",
+            callback=self.showOrthography,
+            sizeStyle="small",
+        )
+        y += 20
+        self.w.speakers_label = TextBox((axis, y, 220, 20), "", sizeStyle="small")
+        y += 24
+        self.w.speakers_supported_label = TextBox(
+            (axis, y, 220, 32), "", sizeStyle="small"
+        )
+        y += 12
+
         if manual_update:
             y += 24
             self.w.block_add_missing = Button(
@@ -181,11 +173,10 @@ class UnicodeInfoWindow:
 
         self.info = UniInfo(0)
         self.unicode = None
-        if self.orth_present:
-            self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
-            self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
-            self.ortho = self.ortho_hyperglot
-            self.ortho_list = []
+        self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
+        self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
+        self.ortho = self.ortho_hyperglot
+        self.ortho_list = []
         self.case = None
         self.view = None
         self.selectedGlyphs = ()
@@ -214,13 +205,12 @@ class UnicodeInfoWindow:
             self.w.orthography_add_missing.enable(False)
             self.w.reset_filter.enable(False)
 
-        if self.orth_present:
-            # self.w.orthography_list.enable(False)
-            self.w.show_orthography.enable(False)
-            # if self.font is None:
-            #     self.w.include_optional.enable(False)
-            # else:
-            #     self.w.include_optional.enable(True)
+        # self.w.orthography_list.enable(False)
+        self.w.show_orthography.enable(False)
+        # if self.font is None:
+        #     self.w.include_optional.enable(False)
+        # else:
+        #     self.w.include_optional.enable(True)
 
     @objc.python_method
     def build(self):
@@ -242,12 +232,11 @@ class UnicodeInfoWindow:
     def font(self, value):
         self._font = value
         if self._font is not None:
-            if self.orth_present:
-                cmap = set()
-                for g in self.font_glyphs:
-                    if g.unicodes and g.export:
-                        cmap |= self.glyph_unicodes(g)
-                self.ortho.cmap = {u: None for u in cmap}
+            cmap = set()
+            for g in self.font_glyphs:
+                if g.unicodes and g.export:
+                    cmap |= self.glyph_unicodes(g)
+            self.ortho.cmap = {u: None for u in cmap}
 
     @property
     def font_fallback(self):
@@ -607,8 +596,6 @@ class UnicodeInfoWindow:
     def _updateOrthographies(self):
         self.w.speakers_label.set("")
         self.w.speakers_supported_label.set("")
-        if not self.orth_present:
-            return
         # Check which orthographies use current unicode
         if self.glyph is None:
             # Show all
@@ -683,13 +670,11 @@ class UnicodeInfoWindow:
     def _updateGlyph(self):
         if self.font is None:
             self.w.reassign_unicodes.enable(False)
-            if self.orth_present:
-                self.w.include_optional.enable(False)
+            self.w.include_optional.enable(False)
             self.w.show_block.enable(False)
         else:
             self.w.reassign_unicodes.enable(True)
-            if self.orth_present:
-                self.w.include_optional.enable(True)
+            self.w.include_optional.enable(True)
             self.w.show_block.enable(True)
         if self.glyph is None:
             self._updateInfo(None)
