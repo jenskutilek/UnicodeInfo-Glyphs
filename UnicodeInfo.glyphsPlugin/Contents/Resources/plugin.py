@@ -139,6 +139,9 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     @property
     def font_glyphs(self):
+        f = self.font_fallback
+        if f is None:
+            return []
         return self.font_fallback.glyphs
 
     @property

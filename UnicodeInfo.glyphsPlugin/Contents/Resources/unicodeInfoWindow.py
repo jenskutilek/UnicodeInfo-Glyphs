@@ -193,10 +193,11 @@ class UnicodeInfoWindow:
         self.include_optional = False
         self.w.reassign_unicodes.enable(False)
         self.all_unicodes_in_font = set()
-        for glyph in self.font_fallback.glyphs:
-            if glyph.unicodes and glyph.export:
-                for uni_hex_str in glyph.unicodes:
-                    self.all_unicodes_in_font.add(int(uni_hex_str, 16))
+        if self.font_fallback:
+            for glyph in self.font_fallback.glyphs:
+                if glyph.unicodes and glyph.export:
+                    for uni_hex_str in glyph.unicodes:
+                        self.all_unicodes_in_font.add(int(uni_hex_str, 16))
 
         self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
         block_list_ui_strings = [""]
