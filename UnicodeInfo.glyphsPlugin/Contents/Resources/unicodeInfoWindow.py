@@ -1,14 +1,23 @@
 import objc
+import urllib.parse
+import webbrowser
+
+from AppKit import NSClassFromString, NSImage
+from Foundation import NSBundle
+from pathlib import Path
+
+try:
+    from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+except ImportError:
+    from installHelper import installViaPip
+
+    installViaPip(Path(__file__).parent, "jkunicode")
+
 
 from jkUnicode import UniInfo, get_expanded_glyph_list
-from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from jkUnicode.orthography import OrthographyInfo
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
-from Foundation import NSBundle
-from AppKit import NSClassFromString, NSImage
-import webbrowser
-import urllib.parse
 
 
 class UnicodeInfoWindow:
