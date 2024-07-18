@@ -2,7 +2,7 @@ import shlex
 import subprocess
 import sys
 
-from GlyphsApp import Glyphs, GSScriptingHandler
+from GlyphsApp import Glyphs, GSGlyphsInfo, GSScriptingHandler
 from io import StringIO
 from pathlib import Path
 
@@ -60,9 +60,12 @@ def run_subprocess_in_macro_window(
     return subprocess.CompletedProcess(process.args, returncode, None, None)
 
 
-def installViaPip(pluginResourcesDirPath: Path, package_name: str) -> None:
+def installViaPip(package_name: str) -> None:
     scriptingHandler = GSScriptingHandler.sharedHandler()
     glyphsPythonPath = Path(scriptingHandler.currentPythonPath()) / "bin" / "python3"
+    targetPath = (
+        Path(GSGlyphsInfo.applicationSupportPath()) / "Scripts" / "site-packages"
+    )
 
     installCommand = [
         glyphsPythonPath,
@@ -71,7 +74,7 @@ def installViaPip(pluginResourcesDirPath: Path, package_name: str) -> None:
         "install",
         "--disable-pip-version-check",
         "--target",
-        pluginResourcesDirPath,
+        targetPath,
         package_name,
     ]
     run_subprocess_in_macro_window(installCommand, check=True)

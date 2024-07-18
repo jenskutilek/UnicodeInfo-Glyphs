@@ -4,14 +4,13 @@ import webbrowser
 
 from AppKit import NSClassFromString, NSImage
 from Foundation import NSBundle
-from pathlib import Path
 
 try:
     from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 except ImportError:
     from installHelper import installViaPip
 
-    installViaPip(Path(__file__).parent, "jkunicode")
+    installViaPip("jkunicode")
 
 
 from jkUnicode import UniInfo, get_expanded_glyph_list
