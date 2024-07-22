@@ -33,15 +33,32 @@ Under _Block,_ the Unicode block which the current character belongs to is shown
 
 Under _Source,_ you can select whether you want orthography information based on [Hyperglot](https://hyperglot.rosettatype.com) or the [Unicode CLDR](https://cldr.unicode.org).
 
-If you check **Include optional characters,** those will be taken into account for the _Show_ and _Fill_ operations, and for determining the orthography support.
+If you check **Include optional characters,** those will be taken into account for the _Show_ and _Fill_ operations. What’s more, the drop-down list will also include orthographies for which the character is optional. Note: this checkbox does _not_ affect whether an orthography is considered unsupported, basic or fully supported.
 
-Under _Usage,_ the dropdown contains a list of all orthographies that use the current character. An empty/half-filled/filled circle next to the orthography name indicates the support level of your font for this orthography (no/basic/optional characters present).
+Under _Usage,_ the dropdown contains a list of all orthographies that use the current character, with some additional information:
+
+○ The font does not contain all basic characters. The orthography is not supported.
+
+◑ The font contains all basic but not all optional characters.
+
+● The font contains all basic and optional characters.
+
+Note: the circle gives you information about the _font_. It is independent of the current character and independent of _Include optional characters_.
+
+Whenever you select an orthography that is not fully supported, a list of missing codepoints is printed to the console of the _Macro_ panel.
+
+**[optional]** means that the current character is optional for the orthography. Otherwise, the character is basic (i.e. essential).
+
+- The **W** link opens the orthography in Wikipedia. You may want to do more research and decide for yourself how important a character is for a particular orthography.
 
 - **Show** can only be used in the _Font_ view and shows all characters your font contains from the selected orthography at the top of the _Font_ view. Before you can show another orthography, you must press **Reset Filter.**
 
+- The **number of speakers of a language** is combined from Hyperglot as well as CLDR. This number is independent of your selection of the source, and independent of the current character. Currently, this does not distinguish between different orthographies for a language and their use, as we do not have this information. If an orthography is not the default script for a language, however, this is indicated as “(non-default script)” in the list.
+
+- The **number of speakers supported by the current character** is the sum of all orthographies with at least basic support (◑ or ●), for which the current character is not only optional. In other words, removing this character would make certain orthographies (with the indicated sum of speakers) unsupported. The message “⚠ This character does not help support any speakers” implies that there are only unsupported languages in the drop-down list. The character is practically of no use at the moment as it is only used in orthographies that your font does not support anyway. You should consider removing this character or adding the missing characters for unsupported orthographies.
+
 - **Fill Orth.** adds placeholder glyphs for all missing characters of the selected orthography to your font.
 
-Whenever you select an orthography that is not fully supported, a list of missing codepoints is printed to the console of the _Macro_ panel.
 
 ## Known issues
 
