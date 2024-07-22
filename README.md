@@ -38,10 +38,12 @@ If you check **Include optional characters,** those will be taken into account f
 Under _Usage,_ the dropdown contains a list of all orthographies that use the current character, with some additional information:
 
 ○ The font does not contain all basic characters. The orthography is not supported.
+
 ◑ The font contains all basic but not all optional characters.
+
 ● The font contains all basic and optional characters.
 
-Note: the circle gives you information about the _font_. It is independent of the current character.
+Note: the circle gives you information about the _font_. It is independent of the current character and independent of _Include optional characters_.
 
 Whenever you select an orthography that is not fully supported, a list of missing codepoints is printed to the console of the _Macro_ panel.
 
@@ -53,7 +55,7 @@ Whenever you select an orthography that is not fully supported, a list of missin
 
 - The **number of speakers of a language** is combined from Hyperglot as well as CLDR. This number is independent of your selection of the source, and independent of the current character. Currently, this does not distinguish between different orthographies for a language and their use, as we do not have this information. If an orthography is not the default script for a language, however, this is indicated as “(non-default script)” in the list.
 
-- The **number of speakers supported by the current character** is the sum of all orthographies with at least basic support (◑ or ●), for which the current character is not only optional. In other words, removing this character would make certain orthographies (with the indicated sum of speakers) unsupported. The message “⚠ This character does not help support any speakers” implies that there are only unsupported languages in the drop-down list. It is practically of no use at the moment as it is only used in orthographies that your font does not support anyway. You should consider removing the character or adding the missing characters for unsupported orthographies.
+- The **number of speakers supported by the current character** is the sum of all orthographies with at least basic support (◑ or ●), for which the current character is not only optional. In other words, removing this character would make certain orthographies (with the indicated sum of speakers) unsupported. The message “⚠ This character does not help support any speakers” implies that there are only unsupported languages in the drop-down list. The character is practically of no use at the moment as it is only used in orthographies that your font does not support anyway. You should consider removing this character or adding the missing characters for unsupported orthographies.
 
 - **Fill Orth.** adds placeholder glyphs for all missing characters of the selected orthography to your font.
 
