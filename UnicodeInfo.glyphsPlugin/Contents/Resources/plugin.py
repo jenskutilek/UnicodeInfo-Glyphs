@@ -1,11 +1,9 @@
 import objc
-
 from AppKit import NSMenuItem
-from GlyphsApp import Glyphs, GSGlyph, WINDOW_MENU, UPDATEINTERFACE
+from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
-
-from unicodeInfoWindow import UnicodeInfoWindow
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+from unicodeInfoWindow import UnicodeInfoWindow
 
 
 def add_glyphs_to_font(glyph_names, font):

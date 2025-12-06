@@ -1,14 +1,14 @@
-import objc
+import urllib.parse
+import webbrowser
 
+import objc
+from AppKit import NSClassFromString, NSImage
+from Foundation import NSBundle
 from jkUnicode import UniInfo, get_expanded_glyph_list
 from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
 from jkUnicode.orthography import OrthographyInfo
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
-from Foundation import NSBundle
-from AppKit import NSClassFromString, NSImage
-import webbrowser
-import urllib.parse
 
 
 class UnicodeInfoWindow:
@@ -16,9 +16,9 @@ class UnicodeInfoWindow:
     def build_window(self, manual_update=False):
         from vanilla import (
             Button,
-            ImageButton,
             CheckBox,
             FloatingWindow,
+            ImageButton,
             PopUpButton,
             TextBox,
         )
@@ -387,9 +387,9 @@ class UnicodeInfoWindow:
         # (from https://stackoverflow.com/a/48812729)
         speakers = int(float("{:.2g}".format(speakers)))
         if speakers >= 1000000:
-            return "{0:g}\u00A0M\u00A0speakers".format(speakers / 1000000)
+            return "{0:g}\u00a0M\u00a0speakers".format(speakers / 1000000)
         else:
-            return "{:,}\u00A0speakers".format(speakers)
+            return "{:,}\u00a0speakers".format(speakers)
 
     @objc.python_method
     def showWikiCharacter(self, sender=None):
@@ -632,7 +632,7 @@ class UnicodeInfoWindow:
                     return
             if self.unicode:
                 self.w.speakers_supported_label.set(
-                    "⚠ This character is not used in\u00A0"
+                    "⚠ This character is not used in\u00a0"
                     + self.ortho.source_display_name
                     + "."
                 )
@@ -657,7 +657,7 @@ class UnicodeInfoWindow:
                 # FWIW, this situation corresponds to having only empty circles in the list of orthographies
                 # (with or without “include optional” checked)
                 self.w.speakers_supported_label.set(
-                    "⚠ This character does not help support any\u00A0speakers."
+                    "⚠ This character does not help support any\u00a0speakers."
                 )
             else:
                 self.w.speakers_supported_label.set(
