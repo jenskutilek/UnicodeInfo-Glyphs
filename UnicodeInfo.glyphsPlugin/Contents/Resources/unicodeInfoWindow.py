@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import urllib.parse
 import webbrowser
+from typing import Any
 
 import objc
 from AppKit import NSClassFromString, NSImage
@@ -13,7 +16,7 @@ from jkUnicode.uniName import uniName
 
 class UnicodeInfoWindow:
     @objc.python_method
-    def build_window(self, manual_update=False):
+    def build_window(self, manual_update=False) -> None:
         from vanilla import (
             Button,
             CheckBox,
@@ -213,15 +216,15 @@ class UnicodeInfoWindow:
         #     self.w.include_optional.enable(True)
 
     @objc.python_method
-    def build(self):
+    def build(self) -> None:
         raise NotImplementedError
 
     @objc.python_method
-    def windowClosed(self, sender):
+    def windowClosed(self, sender) -> None:
         raise NotImplementedError
 
     @objc.python_method
-    def started(self):
+    def started(self) -> None:
         self.w.open()
 
     @property
@@ -229,7 +232,7 @@ class UnicodeInfoWindow:
         return self._font
 
     @font.setter
-    def font(self, value):
+    def font(self, value) -> None:
         self._font = value
         if self._font is not None:
             cmap = set()
@@ -246,7 +249,7 @@ class UnicodeInfoWindow:
         raise NotImplementedError
 
     @property
-    def font_glyphs(self):
+    def font_glyphs(self) -> dict[str, Any]:
         """
         Return the glyphs dict of the current glyph's font.
         """
@@ -257,7 +260,7 @@ class UnicodeInfoWindow:
         return self._glyph
 
     @glyph.setter
-    def glyph(self, value):
+    def glyph(self, value) -> None:
         self._glyph = value
         if self._glyph is None:
             self.font = None
@@ -272,28 +275,28 @@ class UnicodeInfoWindow:
         raise NotImplementedError
 
     @property
-    def glyph_unicode(self):
+    def glyph_unicode(self) -> int | None:
         """
         Return the current glyph's Unicode value as int.
         """
         raise NotImplementedError
 
     @objc.python_method
-    def glyph_unicodes(self, glyph):
+    def glyph_unicodes(self, glyph) -> set[int]:
         """
         Return a glyph's Unicode values as set of int.
         """
         return set(glyph.unicodes)
 
     @objc.python_method
-    def glyphs_for_font(self, font):
+    def glyphs_for_font(self, font) -> dict[str, Any]:
         """
         Return the glyphs dict for a font.
         """
         raise NotImplementedError
 
     @objc.python_method
-    def get_extensions(self, font):
+    def get_extensions(self, font) -> list[str]:
         # Return all used glyph name extensions in the font
         return [
             n.split(".", 1)[1]
@@ -302,7 +305,7 @@ class UnicodeInfoWindow:
         ]
 
     @objc.python_method
-    def get_extension_map(self, font):
+    def get_extension_map(self, font) -> dict[str, list[str]]:
         # Return a map of base glyph names to extension names for the font
         d = {}
         for g in self.glyphs_for_font(font).keys():
@@ -318,7 +321,7 @@ class UnicodeInfoWindow:
         return d
 
     @objc.python_method
-    def get_extra_names(self, font, uni_name_tuples):
+    def get_extra_names(self, font, uni_name_tuples) -> list[tuple[str, str]]:
         ext_map = self.get_extension_map(font)
         additions = []
         for u, n in uni_name_tuples:
@@ -327,16 +330,16 @@ class UnicodeInfoWindow:
         return list(set(uni_name_tuples))
 
     @objc.python_method
-    def get_glyphname_for_unicode(self, value=None):
+    def get_glyphname_for_unicode(self, value=None) -> tuple[str | None, str | None]:
         if value is None:
-            return None
+            return (None, None)
         # from jkUnicode
         name = getGlyphnameForUnicode(value)
         alt = self.gnful_name(value)
         return (name, alt)
 
     @objc.python_method
-    def get_unicode_for_glyphname(self, name=None):
+    def get_unicode_for_glyphname(self, name=None) -> int | None:
         if name is None:
             return None
         # from jkUnicode
@@ -344,7 +347,7 @@ class UnicodeInfoWindow:
         return u
 
     @objc.python_method
-    def addMissingBlock(self, sender=None):
+    def addMissingBlock(self, sender=None) -> None:
         i = self.w.block_list.get()
         if i > -1:
             blk = self.blocks_in_popup[i]
@@ -352,7 +355,7 @@ class UnicodeInfoWindow:
             self.updateInfo()
 
     @objc.python_method
-    def addMissingOrthography(self, sender=None):
+    def addMissingOrthography(self, sender=None) -> None:
         # Add glyphs that are missing for an orthography
         # Get selected orthography
         i = self.w.orthography_list.get()
@@ -362,7 +365,7 @@ class UnicodeInfoWindow:
             self._updateOrthographies()
 
     @objc.python_method
-    def resetFilter(self, sender=None):
+    def resetFilter(self, sender=None) -> None:
         self.w.reset_filter.enable(False)
         self.w.show_orthography.enable(True)
         self.w.show_block.enable(True)
@@ -372,7 +375,7 @@ class UnicodeInfoWindow:
         self.filtered = False
 
     @objc.python_method
-    def selectDatabase(self, sender=None):
+    def selectDatabase(self, sender=None) -> None:
         if sender.getTitle() == "CLDR":
             self.ortho = self.ortho_cdlr
         else:
@@ -380,7 +383,7 @@ class UnicodeInfoWindow:
             self.ortho = self.ortho_hyperglot
         self._updateOrthographies()
 
-    def speakers_as_string(self, speakers):
+    def speakers_as_string(self, speakers) -> str:
         if speakers == 0:
             return ""
         # round to two significant decimal digits
@@ -392,7 +395,7 @@ class UnicodeInfoWindow:
             return "{:,}\u00a0speakers".format(speakers)
 
     @objc.python_method
-    def showWikiCharacter(self, sender=None):
+    def showWikiCharacter(self, sender=None) -> None:
         if not self.unicode:
             return
         url = (
@@ -402,7 +405,7 @@ class UnicodeInfoWindow:
         webbrowser.open(url)
 
     @objc.python_method
-    def showWikiOrthography(self, sender=None):
+    def showWikiOrthography(self, sender=None) -> None:
         if not self.selected_orthography:
             return
         search_string = self.selected_orthography.split("(")[0] + " language"
@@ -413,7 +416,7 @@ class UnicodeInfoWindow:
         webbrowser.open(url)
 
     @objc.python_method
-    def selectOrthography(self, sender=None, index=-1):
+    def selectOrthography(self, sender=None, index=-1) -> None:
         self.w.speakers_label.set("")
         if sender is None:
             i = index
@@ -456,7 +459,7 @@ class UnicodeInfoWindow:
             self.w.orthography_add_missing.enable(False)
 
     @objc.python_method
-    def get_missing_glyphs_for_block(self, block, font):
+    def get_missing_glyphs_for_block(self, block, font) -> list[str]:
         glyph_list = self.get_block_glyph_list(block, font, False, False)
         missing = [n for n in glyph_list if n not in self.font_glyphs]
         # if missing:
@@ -467,7 +470,7 @@ class UnicodeInfoWindow:
         return missing
 
     @objc.python_method
-    def block_completeness(self, block, font):
+    def block_completeness(self, block, font) -> str:
         any_found = None
         any_missing = None
         low, high = uniNameToBlock[block]
@@ -484,7 +487,7 @@ class UnicodeInfoWindow:
         return "●" if any_found else "○"
 
     @objc.python_method
-    def selectBlock(self, sender=None, name=""):
+    def selectBlock(self, sender=None, name="") -> None:
         i = 0
         if sender is None:
             if name == "":
@@ -513,12 +516,12 @@ class UnicodeInfoWindow:
                 self.w.block_add_missing.enable(not is_supported)
 
     @objc.python_method
-    def updateInfo(self, sender):
+    def updateInfo(self, sender) -> None:
         # Is called when the info is updated manually
         pass
 
     @objc.python_method
-    def _updateInfo(self, u=None, fake=False):
+    def _updateInfo(self, u=None, fake=False) -> None:
         self._updateBlock(u)
         if u is None:
             self.w.uni_name.set("❓")
@@ -578,7 +581,7 @@ class UnicodeInfoWindow:
         self._updateOrthographies()
 
     @objc.python_method
-    def _updateBlock(self, u):
+    def _updateBlock(self, u) -> None:
         if u is None:
             self.w.block_list.set(0)
             self.w.show_block.enable(False)
@@ -593,7 +596,7 @@ class UnicodeInfoWindow:
                 self.w.show_block.enable(False)
 
     @objc.python_method
-    def _updateOrthographies(self):
+    def _updateOrthographies(self) -> None:
         self.w.speakers_label.set("")
         self.w.speakers_supported_label.set("")
         # Check which orthographies use current unicode
@@ -667,7 +670,7 @@ class UnicodeInfoWindow:
                 )
 
     @objc.python_method
-    def _updateGlyph(self):
+    def _updateGlyph(self) -> None:
         if self.font is None:
             self.w.reassign_unicodes.enable(False)
             self.w.include_optional.enable(False)
@@ -700,7 +703,7 @@ class UnicodeInfoWindow:
             self._updateInfo(self.unicode, fake)
 
     @objc.python_method
-    def includeOptional(self, sender=None):
+    def includeOptional(self, sender=None) -> None:
         if sender is None:
             return
 
@@ -708,9 +711,9 @@ class UnicodeInfoWindow:
         self._updateOrthographies()
 
     @objc.python_method
-    def get_orthography_glyph_list(self, orthography, font, markers=True):
+    def get_orthography_glyph_list(self, orthography, font, markers=True) -> list[str]:
         if markers:
-            glyph_list = ["_BASE_"]
+            glyph_list: str | None = ["_BASE_"]
         else:
             glyph_list = []
 
@@ -744,10 +747,11 @@ class UnicodeInfoWindow:
                 )
         if markers:
             glyph_list.append("_END_")
+        # FIXME: Filter None
         return glyph_list
 
     @objc.python_method
-    def showOrthography(self, sender=None):
+    def showOrthography(self, sender=None) -> None:
         # Callback for the "Show" button of the Orthographies list
         if self.filtered:
             self._resetFilter()
@@ -776,7 +780,9 @@ class UnicodeInfoWindow:
         self.w.show_block.enable(False)
 
     @objc.python_method
-    def get_block_glyph_list(self, block, font, markers=True, reserved=True):
+    def get_block_glyph_list(
+        self, block, font, markers=True, reserved=True
+    ) -> list[str]:
         if markers:
             glyph_list = ["_START_"]
         else:
@@ -794,7 +800,7 @@ class UnicodeInfoWindow:
         return glyph_list
 
     @objc.python_method
-    def showBlock(self, sender=None):
+    def showBlock(self, sender=None) -> None:
         # Callback for the "Show" button of the Unicode blocks list
         if sender is None:
             return
@@ -825,11 +831,11 @@ class UnicodeInfoWindow:
         self.w.show_orthography.enable(False)
 
     @objc.python_method
-    def toggleCase(self, sender=None):
+    def toggleCase(self, sender=None) -> None:
         pass
 
     @objc.python_method
-    def reassignUnicodes(self, sender=None):
+    def reassignUnicodes(self, sender=None) -> None:
         if self.font is not None:
             unicodes = {g.unicode: g.name for g in self.font if g.unicode}
             for g in self.font:
