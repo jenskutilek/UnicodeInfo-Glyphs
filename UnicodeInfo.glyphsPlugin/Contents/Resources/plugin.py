@@ -827,7 +827,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                 )
         else:
             self.w.orthography_list.enable(True)
-            self.w.show_orthography.enable(self.in_font_view)
+            self.w.show_orthography.enable(self.in_font_view and not self.filtered)
             # If the old name is in the new list, select it
             try:
                 new_index = self.orthographies_in_popup.index(self.selected_orthography)
