@@ -20,9 +20,10 @@ if TYPE_CHECKING:
     from jkUnicode.orthography import Orthography
 
 
-def add_glyphs_to_font(glyph_names, font) -> None:
+def add_glyphs_to_font(glyph_names, font: GSFont) -> None:
+    existing = set(font.glyphs.keys())
     glyph_list = [
-        n for n in glyph_names if n not in font.glyphs and not n.startswith("** ")
+        n for n in glyph_names if n not in existing and not n.startswith("**")
     ]
     font.disableUpdateInterface()
     glyphs = [GSGlyph(n) for n in glyph_list]
@@ -49,7 +50,7 @@ def set_filter(font=None, glyph_names=None) -> None:
     #        the font view.
 
 
-def set_selection(font, glyph_names, deselect=False) -> None:
+def set_selection(font, glyph_names: list[str], deselect=False) -> None:
     font.disableUpdateInterface()
     if deselect:
         for g in font.glyphs:
@@ -262,7 +263,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     def glyph_names_for_font(self, font) -> list[str]:
         if font is None:
             return []
-        return [glyph.name for glyph in font.glyphs]
+        return list(font.glyphs.keys())
 
     @objc.python_method
     def get_orthography_glyph_list(self, orthography, font, markers=True) -> list[str]:
@@ -302,7 +303,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return [n for n in glyph_list if n is not None]
 
     @objc.python_method
-    def get_glyphname_for_unicode(self, value=None) -> str | None:
+    def get_glyphname_for_unicode(self, value: int | None = None) -> str | None:
         if value is None:
             return None
 
@@ -328,7 +329,8 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     @objc.python_method
     def get_missing_glyphs_for_block(self, block, font) -> list[str]:
         glyph_list = self.get_block_glyph_list(block, font, False, False)
-        return [n for n in glyph_list if n not in self.font_glyphs]
+        existing = set(self.font.glyphs.keys())
+        return [n for n in glyph_list if n not in existing]
 
     @objc.python_method
     def get_block_glyph_list(
@@ -345,7 +347,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         ]
         names = self.get_extra_names(font, tuples)
         names.sort()
-        glyph_list.extend([n[1] for n in names])
+        glyph_list.extend([n for _, n in names])
         if markers:
             glyph_list.extend(["** End **", ".notdef"])
         return [n for n in glyph_list if n is not None]
@@ -449,10 +451,10 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         if font is None:
             return
 
-        missing = self.get_missing_glyphs_for_block(block, font)
+        missing = self.get_block_glyph_list(block, font, False)
         add_glyphs_to_font(missing, font)
-        is_supported = len(missing) == 0
-        self.w.block_add_missing.enable(not is_supported)
+        # TODO: Update the block's indicator
+        # self.w.block_list.setItem("●" + block[1:])
 
     @objc.python_method
     def addMissingOrthography(self, sender=None) -> None:
@@ -691,15 +693,19 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         if u is None:
             self.w.block_list.set(0)
             self.w.show_block.enable(False)
+            self.w.block_add_missing.enable(False)
         else:
             # Get the name of the Unicode block for codepoint u
             block = get_block(u)
             if block in self.blocks_in_popup:
                 self.w.block_list.set(self.blocks_in_popup.index(block))
                 self.w.show_block.enable(self.in_font_view and not self.filtered)
+                missing = bool(self.get_missing_glyphs_for_block(block, self.font))
+                self.w.block_add_missing.enable(missing)
             else:
                 self.w.block_list.set(0)
                 self.w.show_block.enable(False)
+                self.w.block_add_missing.enable(False)
 
     @objc.python_method
     def _updateGlyph(self) -> None:
