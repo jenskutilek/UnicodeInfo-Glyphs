@@ -689,7 +689,7 @@ class UnicodeInfoWindow:
     @objc.python_method
     def get_orthography_glyph_list(self, orthography, font, markers=True) -> list[str]:
         if markers:
-            glyph_list: str | None = ["_BASE_"]
+            glyph_list: list[str | None] = ["_BASE_"]
         else:
             glyph_list = []
 

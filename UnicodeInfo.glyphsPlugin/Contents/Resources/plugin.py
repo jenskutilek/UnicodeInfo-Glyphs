@@ -255,7 +255,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         add_glyphs_to_font(glyph_list, font)
 
     @objc.python_method
-    def _addMissingOrthography(self, orthography) -> None:
+    def _addMissingOrthography(self, orthography: str) -> None:
         font = self.font_fallback
         if font is None:
             return
