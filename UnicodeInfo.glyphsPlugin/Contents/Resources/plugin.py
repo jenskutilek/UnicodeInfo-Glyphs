@@ -317,6 +317,12 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             g.unicode = "%04X" % value
             g.updateGlyphInfo(changeName=True)
             name = g.name
+            if name == "newGlyph":
+                # Something went wrong, e.g. PUA
+                if len(g.unicode) == 5:
+                    name = f"u{g.unicode}"
+                else:
+                    name = f"uni{g.unicode}"
         return name
 
     @objc.python_method
