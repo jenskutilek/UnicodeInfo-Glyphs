@@ -330,23 +330,6 @@ class UnicodeInfoWindow:
         return list(set(uni_name_tuples))
 
     @objc.python_method
-    def get_glyphname_for_unicode(self, value=None) -> tuple[str | None, str | None]:
-        if value is None:
-            return (None, None)
-        # from jkUnicode
-        name = getGlyphnameForUnicode(value)
-        alt = self.gnful_name(value)
-        return (name, alt)
-
-    @objc.python_method
-    def get_unicode_for_glyphname(self, name=None) -> int | None:
-        if name is None:
-            return None
-        # from jkUnicode
-        u = getUnicodeForGlyphname(name)
-        return u
-
-    @objc.python_method
     def addMissingBlock(self, sender=None) -> None:
         i = self.w.block_list.get()
         if i > -1:
@@ -552,18 +535,11 @@ class UnicodeInfoWindow:
                     self.w.code.set("😡 %04X → %04X" % (self.glyph_unicode, u))
 
             # Glyph name
-            expected_name, alt_name = self.get_glyphname_for_unicode(u)
+            expected_name = self.get_glyphname_for_unicode(u)
             if self.glyph.name == expected_name:
                 self.w.glyph_name.set(f"😀 {expected_name}")
-            elif alt_name is not None and self.glyph.name == alt_name:
-                self.w.glyph_name.set(f"😀 {alt_name} (Product: {expected_name})")
             else:
-                if alt_name is None:
-                    self.w.glyph_name.set(f"😡 {self.glyph.name} → {expected_name}")
-                else:
-                    self.w.glyph_name.set(
-                        f"😡 {self.glyph.name} → {expected_name} or {alt_name}"
-                    )
+                self.w.glyph_name.set(f"😡 {self.glyph.name} → {expected_name}")
 
             # Case mapping
             lc = self.info.lc_mapping
@@ -719,9 +695,7 @@ class UnicodeInfoWindow:
 
         base = get_expanded_glyph_list(orthography.unicodes_base, ui=self.info)
         base = self.get_extra_names(font, base)
-        glyph_list.extend(
-            [self.get_glyphname_for_unicode(u)[0] for u, n in sorted(base)]
-        )
+        glyph_list.extend([self.get_glyphname_for_unicode(u) for u, n in sorted(base)])
 
         punc = get_expanded_glyph_list(orthography.unicodes_punctuation, ui=self.info)
         punc = self.get_extra_names(font, punc)
@@ -729,7 +703,7 @@ class UnicodeInfoWindow:
             glyph_list.append("_PUNCT_")
         if punc:
             glyph_list.extend(
-                [self.get_glyphname_for_unicode(u)[0] for u, n in sorted(punc)]
+                [self.get_glyphname_for_unicode(u) for u, n in sorted(punc)]
             )
 
         if self.include_optional:
@@ -740,15 +714,14 @@ class UnicodeInfoWindow:
             if optn:
                 glyph_list.extend(
                     [
-                        self.get_glyphname_for_unicode(u)[0]
+                        self.get_glyphname_for_unicode(u)
                         for u, n in sorted(optn)
-                        if self.get_glyphname_for_unicode(u)[0] not in glyph_list
+                        if self.get_glyphname_for_unicode(u) not in glyph_list
                     ]
                 )
         if markers:
             glyph_list.append("_END_")
-        # FIXME: Filter None
-        return glyph_list
+        return [n for n in glyph_list if n is not None]
 
     @objc.python_method
     def showOrthography(self, sender=None) -> None:
@@ -788,7 +761,7 @@ class UnicodeInfoWindow:
         else:
             glyph_list = []
         tuples = [
-            (cp, self.get_glyphname_for_unicode(cp)[0])
+            (cp, self.get_glyphname_for_unicode(cp))
             for cp in get_codepoints(block)
             if reserved or cp in uniName
         ]
@@ -797,7 +770,7 @@ class UnicodeInfoWindow:
         glyph_list.extend([n[1] for n in names])
         if markers:
             glyph_list.append("_END_")
-        return glyph_list
+        return [n for n in glyph_list if n is not None]
 
     @objc.python_method
     def showBlock(self, sender=None) -> None:

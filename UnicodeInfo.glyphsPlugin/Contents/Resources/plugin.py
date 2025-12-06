@@ -161,17 +161,13 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return font.glyphs
 
     @objc.python_method
-    def gnful_name(self, u) -> None:
-        return None
-
-    @objc.python_method
-    def get_glyphname_for_unicode(self, value=None) -> tuple[str | None, None]:
+    def get_glyphname_for_unicode(self, value=None) -> str | None:
         if value is None:
-            return None, None
+            return None
 
         font = self.font_fallback
         if font is None:
-            return None, None
+            return None
 
         if font.disablesNiceNames:
             name = getGlyphnameForUnicode(value)
@@ -180,7 +176,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             g.unicode = "%04X" % value
             g.updateGlyphInfo(changeName=True)
             name = g.name
-        return name, None
+        return name
 
     @objc.python_method
     def get_unicode_for_glyphname(self, name=None) -> int | None:
