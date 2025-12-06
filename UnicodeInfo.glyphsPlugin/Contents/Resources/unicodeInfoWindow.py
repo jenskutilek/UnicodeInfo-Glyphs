@@ -179,7 +179,7 @@ class UnicodeInfoWindow:
         self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
         self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
         self.ortho = self.ortho_hyperglot
-        self.ortho_list = []
+        self.ortho_list: list[str] = []
         self.case = None
         self.view = None
         self.selectedGlyphs = ()
