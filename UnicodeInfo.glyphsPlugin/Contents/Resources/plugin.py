@@ -132,10 +132,10 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return Glyphs.font
 
     @property
-    def font_glyphs(self) -> dict[str, Any]:
+    def font_glyphs(self) -> list[Any]:
         f = self.font_fallback
         if f is None:
-            return {}
+            return []
         return self.font_fallback.glyphs
 
     @property

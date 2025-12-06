@@ -249,7 +249,7 @@ class UnicodeInfoWindow:
         raise NotImplementedError
 
     @property
-    def font_glyphs(self) -> dict[str, Any]:
+    def font_glyphs(self) -> list[Any]:
         """
         Return the glyphs dict of the current glyph's font.
         """
