@@ -8,11 +8,25 @@ import objc
 from AppKit import NSMenuItem
 from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
-from jkUnicode import UniInfo, get_expanded_glyph_list
-from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
-from jkUnicode.orthography import OrthographyInfo
-from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
-from jkUnicode.uniName import uniName
+
+try:
+    from jkUnicode import UniInfo, get_expanded_glyph_list
+    from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+    from jkUnicode.orthography import OrthographyInfo
+    from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
+    from jkUnicode.uniName import uniName
+except (ImportError, ModuleNotFoundError):
+    from GlyphsApp import Message
+
+    Message(
+        message=(
+            "The jkUnicode module is missing. "
+            "Please try to reinstall UnicodeInfo via the Plugin Manager."
+        ),
+        title="UnicodeInfo",
+    )
+
+
 from unicodeInfoWindow import UnicodeInfoWindow
 
 if TYPE_CHECKING:
