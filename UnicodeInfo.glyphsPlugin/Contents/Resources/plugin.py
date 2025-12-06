@@ -285,16 +285,3 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     def __file__(self) -> str:
         """Please leave this method unchanged"""
         return __file__
-
-    # Temporary Fix
-    # Sort ID for compatibility with v919:
-    _sortID = 0
-
-    def setSortID_(self, id: int) -> None:
-        try:
-            self._sortID = id
-        except Exception as e:
-            self.logToConsole("setSortID_: %s" % str(e))
-
-    def sortID(self) -> int:
-        return self._sortID
