@@ -9,13 +9,19 @@ from AppKit import NSMenuItem
 from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
 
+hasModule = False
 try:
     from jkUnicode import UniInfo, get_expanded_glyph_list
     from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
     from jkUnicode.orthography import OrthographyInfo
     from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
     from jkUnicode.uniName import uniName
+    hasModule = True
 except (ImportError, ModuleNotFoundError):
+    print("The jkUnicode module is missing. Please try to reinstall UnicodeInfo via the Plugin Manager.")
+
+
+def showMissingModule():
     from GlyphsApp import Message
 
     Message(
@@ -93,6 +99,10 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.name = Glyphs.localize({"en": "Unicode Info", "de": "Unicode-Info"})
 
     def showWindow_(self, sender=None) -> None:
+        if not hasModule:
+            showMissingModule()
+            return
+
         self.glyph = None
         self.glyph_name = None
         self.filtered = False
