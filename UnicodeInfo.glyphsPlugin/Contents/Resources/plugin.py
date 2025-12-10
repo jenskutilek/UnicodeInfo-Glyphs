@@ -8,6 +8,7 @@ import objc
 from AppKit import NSMenuItem
 from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
+from unicodeInfoWindow import UnicodeInfoWindow
 
 hasModule = False
 try:
@@ -16,9 +17,16 @@ try:
     from jkUnicode.orthography import OrthographyInfo
     from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
     from jkUnicode.uniName import uniName
+
     hasModule = True
 except (ImportError, ModuleNotFoundError):
-    print("The jkUnicode module is missing. Please try to reinstall UnicodeInfo via the Plugin Manager.")
+    import traceback
+
+    print(
+        "The jkUnicode module is missing. "
+        "Please try to reinstall UnicodeInfo via the Plugin Manager."
+    )
+    print(traceback.format_exc())
 
 
 def showMissingModule():
@@ -32,8 +40,6 @@ def showMissingModule():
         title="UnicodeInfo",
     )
 
-
-from unicodeInfoWindow import UnicodeInfoWindow
 
 if TYPE_CHECKING:
     from GlyphsApp import GSFont, GSGlyph
