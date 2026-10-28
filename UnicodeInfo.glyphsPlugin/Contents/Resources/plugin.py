@@ -16,20 +16,21 @@ from jkUnicode.uniName import uniName
 from unicodeinfowindow import block_completeness, get_extra_names
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from GlyphsApp import GSFont
     from jkUnicode.orthography import Orthography
 
 
-def add_glyphs_to_font(glyph_names: list[str], font: "GSFont") -> None:
+def add_glyphs_to_font(glyph_names: "Iterable[str]", font: "GSFont") -> None:
     existing = set(font.glyphs.keys())
-    glyph_list = [
-        n for n in glyph_names if n not in existing and not n.startswith("**")
-    ]
+    missing = set(glyph_names).difference(existing)
     font.disableUpdateInterface()
-    glyphs = [GSGlyph(n) for n in glyph_list]
-    font.glyphs.extend(glyphs)
+    for glyph_name in missing:
+        glyph = GSGlyph(glyph_name)
+        font.glyphs.append(glyph)
     font.enableUpdateInterface()
-    set_selection(font, glyph_list, deselect=True)
+    set_selection(font, missing, deselect=True)
 
 
 def set_filter(
@@ -53,7 +54,7 @@ def set_filter(
 
 
 def set_selection(
-    font: "GSFont", glyph_names: list[str], deselect: bool = False
+    font: "GSFont", glyph_names: "Iterable[str]", deselect: bool = False
 ) -> None:
     font.disableUpdateInterface()
     if deselect:
@@ -584,8 +585,10 @@ class UnicodeInfo(GeneralPlugin):
         if font is None:
             return
 
-        missing = self.get_block_glyph_list(block, font, False)
-        add_glyphs_to_font(missing, font)
+        glyph_list = self.get_block_glyph_list(
+            block, font, add_markers=False, include_reserved=False
+        )
+        add_glyphs_to_font(glyph_list, font)
         # TODO: Update the block's indicator
         # self.w.block_list.setItem("●" + block[1:])
 
@@ -609,8 +612,9 @@ class UnicodeInfo(GeneralPlugin):
         if font is None:
             return
 
-        glyph_list = self.get_orthography_glyph_list(orthography, font, False)
-
+        glyph_list = self.get_orthography_glyph_list(
+            orthography, font, add_markers=False
+        )
         add_glyphs_to_font(glyph_list, font)
 
     def includeOptional_(self, sender=None) -> None:
