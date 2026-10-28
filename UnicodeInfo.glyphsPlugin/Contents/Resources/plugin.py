@@ -284,7 +284,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         Return a glyph's Unicode values as set of int.
         """
         # Glyphs stores Unicode values as hex string
-        return set([int(u, 16) for u in glyph.unicodes])
+        return {int(u, 16) for u in glyph.unicodes}
 
     @objc.python_method
     def glyph_names_for_font(self, font) -> list[str]:
