@@ -835,8 +835,11 @@ class UnicodeInfo(GeneralPlugin):
             if block in self.blocks_in_popup:
                 self.w.block_list.set(self.blocks_in_popup.index(block))
                 self.w.show_block.enable(self.in_font_view and not self.filtered)
-                missing = bool(self.get_missing_glyphs_for_block(block, self.font))
-                self.w.block_add_missing.enable(missing)
+                if self.font is None:
+                    self.w.block_add_missing.enable(False)
+                else:
+                    missing = bool(self.get_missing_glyphs_for_block(block, self.font))
+                    self.w.block_add_missing.enable(missing)
             else:
                 self.w.block_list.set(0)
                 self.w.show_block.enable(False)
