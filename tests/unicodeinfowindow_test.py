@@ -20,6 +20,22 @@ class UnicodeInfoWindowTests(TestCase):
         codepoints = [0x0099]
         assert block_completeness("Latin Extended-A", codepoints) == "○"
 
+    def test_block_completeness_reserved_full(self) -> None:
+        codepoints = range(0x20A0, 0x20CF + 1)
+        assert block_completeness("Currency Symbols", codepoints) == "●"
+
+    def test_block_completeness_reserved_partial_1(self) -> None:
+        codepoints = range(0x20A0, 0x20C4)
+        assert block_completeness("Currency Symbols", codepoints) == "◑"
+
+    def test_block_completeness_reserved_partial_2(self) -> None:
+        codepoints = range(0x20A0 + 1, 0x20C4 + 1)
+        assert block_completeness("Currency Symbols", codepoints) == "◑"
+
+    def test_block_completeness_reserved_none(self) -> None:
+        codepoints = [0x0099]
+        assert block_completeness("Currency Symbols", codepoints) == "○"
+
     def test_get_extension_map(self) -> None:
         glyph_names = ["a", "b", "c", "a.ss01", "b.ss02", "d.ss03", "a.ss01.sc"]
         assert get_extension_map(glyph_names) == {

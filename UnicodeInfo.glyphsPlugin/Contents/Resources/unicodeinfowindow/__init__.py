@@ -19,20 +19,15 @@ def block_completeness(block: str, unicodes: "Iterable[int]") -> str:
     Returns:
         str: The indicator; an empty, half-filled, or filled circle.
     """
-    any_found = False
-    any_missing = False
     low, high = uniNameToBlock[block]
-    for cp in range(low, high + 1):
-        if cp in uniName:
-            if cp in unicodes:
-                if any_missing:
-                    return "◑"
-                any_found = True
-            else:
-                if any_found:
-                    return "◑"
-                any_missing = True
-    return "●" if any_found else "○"
+    block_codepoints = {c for c in range(low, high + 1) if c in uniName}
+    test_codepoints = {c for c in unicodes if c in uniName}
+    intersection = block_codepoints.intersection(test_codepoints)
+    if intersection == block_codepoints:
+        return "●"
+    if len(intersection) == 0:
+        return "○"
+    return "◑"
 
 
 def get_extension_map(glyph_names: "Iterable[str]") -> dict[str, set[str]]:
