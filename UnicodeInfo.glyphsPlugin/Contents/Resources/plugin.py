@@ -763,7 +763,7 @@ class UnicodeInfo(GeneralPlugin):
 
             block = self.blocks_in_popup[i]
             glyph_list = [f"** {block} **"]
-            glyph_list.extend(self.get_block_glyph_list(block, font, reserved=True))
+            glyph_list.extend(self.get_block_glyph_list(block, font))
             glyph_list.append("** End **")
 
             # Update status
