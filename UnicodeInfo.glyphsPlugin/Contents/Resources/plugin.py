@@ -855,12 +855,14 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         if len(self.ortho_list) == 0:
             self.w.orthography_list.enable(False)
             self.w.show_orthography.enable(False)
-            if not self.include_optional:
-                if len(self.ortho.get_orthographies_for_unicode_any(self.unicode)) != 0:
-                    self.w.speakers_supported_label.set(
-                        "Optional character. Activate “include optional” to show the languages."
-                    )
-                    return
+            if (
+                not self.include_optional
+                and len(self.ortho.get_orthographies_for_unicode_any(self.unicode)) != 0
+            ):
+                self.w.speakers_supported_label.set(
+                    "Optional character. Activate “include optional” to show the languages."
+                )
+                return
             if self.unicode:
                 self.w.speakers_supported_label.set(
                     "⚠ This character is not used in\u00a0"
