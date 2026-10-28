@@ -1,0 +1,32 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+
+def get_extension_map(glyph_names: "Iterable[str]") -> dict[str, set[str]]:
+    """
+    Return a map of base glyph names to extension names for the font.
+    """
+    d: dict[str, set[str]] = {}
+    for glyph_name in glyph_names:
+        if "." in glyph_name and not glyph_name.startswith("."):
+            base_name, _ = glyph_name.split(".", 1)
+            if base_name not in d:
+                d[base_name] = {glyph_name}
+            else:
+                d[base_name].add(glyph_name)
+        else:
+            if glyph_name not in d:
+                d[glyph_name] = set()
+    return d
+
+
+def get_extra_names(
+    glyph_names: "Iterable[str]", uni_name_tuples: "Iterable[tuple[int | None, str]]"
+) -> set[tuple[int | None, str]]:
+    ext_map = get_extension_map(glyph_names)
+    additions = set(uni_name_tuples)
+    for uni, name in uni_name_tuples:
+        additions |= {(uni, e) for e in ext_map.get(name, set())}
+    return set(additions)

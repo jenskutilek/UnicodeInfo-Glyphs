@@ -8,7 +8,7 @@ authors = [{ name = "Jens Kutílek", email = "webmail@kutilek.de" }]
 
 dependencies = [
   "cocoa-vanilla >= 0.8.0",
-  "jkunicode >= 2.7.0",
+  "jkunicode >= 2.7.2",
   "pyobjc",
 ]
 
@@ -26,6 +26,17 @@ test = [
   { include-group = "dev" },
 ]
 
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14"]
+build-backend = "uv_build"
+
 [tool.ruff.lint]
 future-annotations = false
 ignore = ["N999"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["unicodeinfowindow"]
+
+[tool.uv.build-backend]
+module-name = "unicodeinfowindow"
+module-root = "UnicodeInfo.glyphsPlugin/Contents/Resources"

@@ -1,49 +1,26 @@
 import urllib.parse
 import webbrowser
+from os import environ
 from typing import TYPE_CHECKING
 
 import objc
-from AppKit import NSMenuItem
-from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSFont, GSGlyph
+from AppKit import NSBundle, NSClassFromString, NSImage, NSMenuItem
+from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
-from unicodeInfoWindow import UnicodeInfoWindow
+from jkUnicode import UniInfo, get_expanded_glyph_list
+from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
+from jkUnicode.orthography import OrthographyInfo
+from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
+from jkUnicode.uniName import uniName
 
-hasModule = False
-try:
-    from jkUnicode import UniInfo, get_expanded_glyph_list
-    from jkUnicode.aglfn import getGlyphnameForUnicode, getUnicodeForGlyphname
-    from jkUnicode.orthography import OrthographyInfo
-    from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
-    from jkUnicode.uniName import uniName
-
-    hasModule = True
-except (ImportError, ModuleNotFoundError):
-    import traceback
-
-    print(
-        "The jkUnicode module is missing. "
-        "Please try to reinstall UnicodeInfo via the Plugin Manager."
-    )
-    print(traceback.format_exc())
-
-
-def showMissingModule():
-    from GlyphsApp import Message
-
-    Message(
-        message=(
-            "The jkUnicode module is missing. "
-            "Please try to reinstall UnicodeInfo via the Plugin Manager."
-        ),
-        title="UnicodeInfo",
-    )
-
+from unicodeinfowindow import get_extra_names
 
 if TYPE_CHECKING:
+    from GlyphsApp import GSFont
     from jkUnicode.orthography import Orthography
 
 
-def add_glyphs_to_font(glyph_names, font: GSFont) -> None:
+def add_glyphs_to_font(glyph_names: list[str], font: "GSFont") -> None:
     existing = set(font.glyphs.keys())
     glyph_list = [
         n for n in glyph_names if n not in existing and not n.startswith("**")
@@ -55,7 +32,9 @@ def add_glyphs_to_font(glyph_names, font: GSFont) -> None:
     set_selection(font, glyph_list, deselect=True)
 
 
-def set_filter(font=None, glyph_names=None) -> None:
+def set_filter(
+    font: "GSFont | None" = None, glyph_names: list[str] | None = None
+) -> None:
     if font is None:
         return
 
@@ -73,7 +52,9 @@ def set_filter(font=None, glyph_names=None) -> None:
     #        the font view.
 
 
-def set_selection(font, glyph_names: list[str], deselect=False) -> None:
+def set_selection(
+    font: "GSFont", glyph_names: list[str], deselect: bool = False
+) -> None:
     font.disableUpdateInterface()
     if deselect:
         for g in font.glyphs:
@@ -83,7 +64,7 @@ def set_selection(font, glyph_names: list[str], deselect=False) -> None:
     font.enableUpdateInterface()
 
 
-def speakers_as_string(speakers) -> str:
+def speakers_as_string(speakers: float) -> str:
     if speakers == 0:
         return ""
     # round to two significant decimal digits
@@ -95,39 +76,28 @@ def speakers_as_string(speakers) -> str:
         return f"{speakers:,}\u00a0speakers"
 
 
-class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
+class UnicodeInfo(GeneralPlugin):
     @objc.python_method
     def settings(self) -> None:
         self.hasNotification = False
         self.name = Glyphs.localize({"en": "Unicode Info", "de": "Unicode-Info"})
 
     def showWindow_(self, sender=None) -> None:
-        if not hasModule:
-            showMissingModule()
-            return
-
         self.glyph = None
-        self.glyph_name = None
-        self.filtered = False
-        self.in_font_view = False
+        self.glyph_name: str | None = None
+        self.filtered: bool = False
+        self.in_font_view: bool = False
         self.info = UniInfo(0)
         self.unicode: int | None = None
         self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
         self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
         self.ortho = self.ortho_hyperglot
         self.ortho_list: list[Orthography] = []
-        self.case = None
+        self.case: int | None = None
         self.view = None
-        self.selectedGlyphs = ()
-        self.selected_orthography = None
-        self.include_optional = False
-        self.all_unicodes_in_font = set()
-        if self.font_fallback:
-            for glyph in self.font_fallback.glyphs:
-                if glyph.unicodes and glyph.export:
-                    for uni_hex_str in glyph.unicodes:
-                        self.all_unicodes_in_font.add(int(uni_hex_str, 16))
-
+        self.selected_orthography: Orthography | None = None
+        self.include_optional: bool = False
+        self.all_unicodes_in_font: set[int] = set()
         self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
         self.build_window(manual_update=True)
         if not self.hasNotification:
@@ -137,7 +107,188 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.updateInfo()
 
     @objc.python_method
+    def build_window(self, manual_update=False) -> None:
+        from vanilla import (
+            Button,
+            CheckBox,
+            FloatingWindow,
+            ImageButton,
+            PopUpButton,
+            TextBox,
+        )
+
+        width = 320
+        height = 240
+
+        if manual_update:
+            # Make room for an additional button
+            height += 22
+
+        ini_height = height - 16
+        axis = 50
+
+        self.w = FloatingWindow(
+            (width, ini_height),
+            "Unicode Info",
+            minSize=(width, height),
+            maxSize=(530, height),
+        )
+        self.w.bind("close", self.windowClosed)
+        y = 10
+        self.w.uni_name_label = TextBox(
+            (8, y, axis - 10, 20), "Name", sizeStyle="small"
+        )
+        self.w.uni_name = TextBox((axis, y, -10, 20), "", sizeStyle="small")
+        y += 20
+        self.w.code_label = TextBox((8, y, axis - 10, 20), "Code", sizeStyle="small")
+        self.w.code = TextBox((axis, y, -10, 20), "", sizeStyle="small")
+        if hasattr(self, "__file__"):
+            path = self.__file__()
+            thisBundle = NSBundle.bundleWithPath_(
+                path[: path.rfind("Contents/Resources/")]
+            )
+        else:
+            thisBundle = NSBundle.bundleForClass_(NSClassFromString(self.className()))
+        wikipedia_icon = NSImage.alloc().initWithContentsOfFile_(
+            thisBundle.pathForImageResource_("wikipedia_icon")
+        )
+        self.w.wiki_character = ImageButton(
+            (-94, y - 1.5, 16, 16),
+            imageObject=wikipedia_icon,
+            callback=self.showWikiCharacter,
+            bordered=False,
+            sizeStyle="small",
+        )
+        self.w.reassign_unicodes = Button(
+            (-72, y - 6, -10, 25),
+            "Assign all",
+            callback=self.reassignUnicodes,
+            sizeStyle="small",
+        )
+        y += 20
+        self.w.glyph_name_label = TextBox(
+            (8, y, axis - 10, 20), "Glyph", sizeStyle="small"
+        )
+        self.w.glyph_name = TextBox((axis, y, -10, 20), "", sizeStyle="small")
+        self.w.case = Button(
+            (-72, y - 6, -10, 25),
+            "\u2191\u2193 Case",
+            callback=self.toggleCase,
+            sizeStyle="small",
+        )
+        y += 20
+        self.w.block_label = TextBox((8, y, axis - 10, 20), "Block", sizeStyle="small")
+        self.w.block_list = PopUpButton(
+            (axis, y - 4, -101, 20),
+            [],
+            callback=self.selectBlock,
+            sizeStyle="small",
+        )
+        self.w.show_block = Button(
+            (-72, y - 6, -10, 25),
+            "Show",
+            callback=self.showBlock,
+            sizeStyle="small",
+        )
+        y += 24
+        self.w.database_label = TextBox(
+            (8, y, axis - 5, 20), "Source", sizeStyle="small"
+        )
+        self.w.database_list = PopUpButton(
+            (axis, y - 4, -101, 20),
+            ["Hyperglot", "CLDR"],
+            callback=self.selectDatabase,
+            sizeStyle="small",
+        )
+        y += 16
+        self.w.include_optional = CheckBox(
+            (axis + 4, y, 200, 20),
+            "Include optional characters",
+            callback=self.includeOptional,
+            sizeStyle="small",
+        )
+        y += 28
+        self.w.orthography_label = TextBox(
+            (8, y, axis - 10, 20), "Usage", sizeStyle="small"
+        )
+        self.w.orthography_list = PopUpButton(
+            (axis, y - 4, -101, 20),
+            [],
+            callback=self.selectOrthography,
+            sizeStyle="small",
+        )
+        self.w.wiki_orthography = ImageButton(
+            (-94, y - 1.5, 16, 16),
+            imageObject=wikipedia_icon,
+            callback=self.showWikiOrthography,
+            bordered=False,
+            sizeStyle="small",
+        )
+        self.w.show_orthography = Button(
+            (-72, y - 6, -10, 25),
+            "Show",
+            callback=self.showOrthography,
+            sizeStyle="small",
+        )
+        y += 20
+        self.w.speakers_label = TextBox((axis, y, 220, 20), "", sizeStyle="small")
+        y += 24
+        self.w.speakers_supported_label = TextBox(
+            (axis, y, 220, 32), "", sizeStyle="small"
+        )
+        y += 12
+
+        if manual_update:
+            y += 24
+            self.w.block_add_missing = Button(
+                (axis, y - 6, 72, 25),
+                "Fill Block",
+                callback=self.addMissingBlock,
+                sizeStyle="small",
+            )
+            self.w.orthography_add_missing = Button(
+                (axis + 76, y - 6, 72, 25),
+                "Fill Orth.",
+                callback=self.addMissingOrthography,
+                sizeStyle="small",
+            )
+            self.w.reset_filter = Button(
+                (-88, y - 6, -10, 25),
+                "Reset Filter",
+                callback=self.resetFilter,
+                sizeStyle="small",
+            )
+            # self.w.manual_update = Button(
+            #     (-60, y - 6, -10, 25),
+            #     "Query",
+            #     callback=self.updateInfo,
+            #     sizeStyle="small",
+            # )
+        block_list_ui_strings = [""]
+        for block in self.blocks_in_popup[1:]:
+            block_list_ui_strings.append(self.block_completeness(block) + " " + block)
+        self.w.reassign_unicodes.enable(False)
+        self.w.block_list.setItems(block_list_ui_strings)
+        self.w.show_block.enable(False)
+        self.w.case.enable(False)
+
+        if manual_update:
+            self.w.block_add_missing.enable(False)
+            self.w.orthography_add_missing.enable(False)
+            self.w.reset_filter.enable(False)
+
+        # self.w.orthography_list.enable(False)
+        self.w.show_orthography.enable(False)
+        # if self.font is None:
+        #     self.w.include_optional.enable(False)
+        # else:
+        #     self.w.include_optional.enable(True)
+
+    @objc.python_method
     def start(self) -> None:
+        if "GLYPHS_HEADLESS" in environ:
+            return
+
         newMenuItem = NSMenuItem.alloc().init()
         newMenuItem.setTitle_(self.name)
         newMenuItem.setAction_(self.showWindow_)
@@ -192,45 +343,46 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     # Properties
 
     @property
-    def font(self) -> GSFont:
+    def font(self) -> "GSFont | None":
         """
         Return the current glyph's font or, as a fallback, the current font.
         """
+        if self._font is None:
+            if Glyphs.font is None:
+                return None
+            else:
+                self.font = Glyphs.font
+
         return self._font
 
     @font.setter
-    def font(self, value: GSFont) -> None:
+    def font(self, value: "GSFont | None") -> None:
+        if self._font == value:
+            return
+
         self._font = value
-        if self._font is not None:
-            cmap = set()
-            for g in self.font_glyphs:
-                if g.unicodes and g.export:
-                    cmap |= self.glyph_unicodes(g)
-            self.ortho.cmap = {u: None for u in cmap}
+        if self._font is None:
+            self.ortho.cmap = {}
+            return
+
+        cmap = set()
+        for g in self._font.glyphs:
+            if g.unicodes and g.export:
+                cmap |= self.glyph_unicodes(g)
+        self.ortho.cmap = {u: ".notdef" for u in cmap}
 
     @property
-    def font_fallback(self) -> GSFont:
+    def font_fallback(self) -> "GSFont | None":
         if self._font is not None:
             return self._font
         return Glyphs.font
 
     @property
-    def font_glyphs(self) -> list[GSGlyph]:
-        """
-        Return the list of GSGlyph objects of the current glyph's font.
-        """
-        f = self.font_fallback
-        if f is None:
-            return []
-
-        return self.font_fallback.glyphs
-
-    @property
-    def glyph(self) -> GSGlyph:
+    def glyph(self) -> GSGlyph | None:
         return self._glyph
 
     @glyph.setter
-    def glyph(self, value: GSGlyph) -> None:
+    def glyph(self, value: GSGlyph | None) -> None:
         self._glyph = value
         if self._glyph is None:
             self.font = None
@@ -238,7 +390,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             self.font = self.glyph_font
 
     @property
-    def glyph_font(self) -> GSFont | None:
+    def glyph_font(self) -> "GSFont | None":
         """
         Return the current glyph's font.
         """
@@ -262,13 +414,13 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     # Methods
 
     @objc.python_method
-    def block_completeness(self, block, font) -> str:
-        any_found = None
-        any_missing = None
+    def block_completeness(self, block) -> str:
+        any_found = False
+        any_missing = False
         low, high = uniNameToBlock[block]
         for cp in range(low, high + 1):
             if cp in uniName:
-                if cp in self.all_unicodes_in_font:
+                if cp in self.ortho.cmap:
                     if any_missing:
                         return "◑"
                     any_found = True
@@ -293,18 +445,22 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return list(font.glyphs.keys())
 
     @objc.python_method
-    def get_orthography_glyph_list(self, orthography, font, markers=True) -> list[str]:
+    def get_orthography_glyph_list(
+        self, orthography: "Orthography", font: "GSFont", markers: bool = True
+    ) -> list[str]:
         if markers:
             glyph_list: list[str | None] = [f"** {orthography.name} **"]
         else:
             glyph_list = []
 
+        glyph_names = font.glyphs.keys()
+
         base = get_expanded_glyph_list(orthography.unicodes_base, ui=self.info)
-        base = self.get_extra_names(font, base)
+        base = get_extra_names(glyph_names, base)
         glyph_list.extend([self.get_glyphname_for_unicode(u) for u, n in sorted(base)])
 
         punc = get_expanded_glyph_list(orthography.unicodes_punctuation, ui=self.info)
-        punc = self.get_extra_names(font, punc)
+        punc = get_extra_names(glyph_names, punc)
         if markers:
             glyph_list.append("** Punctuation **")
         if punc:
@@ -314,7 +470,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
         if self.include_optional:
             optn = get_expanded_glyph_list(orthography.unicodes_optional, ui=self.info)
-            optn = self.get_extra_names(font, optn)
+            optn = get_extra_names(glyph_names, optn)
             if markers:
                 glyph_list.append("** Optional **")
             if optn:
@@ -330,17 +486,18 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return [n for n in glyph_list if n is not None]
 
     @objc.python_method
-    def get_glyphname_for_unicode(self, value: "int | None" = None) -> "str | None":
+    def get_glyphname_for_unicode(self, value: int | None = None) -> "str | None":
         if value is None:
             return None
 
-        font = self.font_fallback
-        if font is None:
+        if self.font is None:
             return None
 
-        if font.disablesNiceNames:
+        if self.font.disablesNiceNames:
+            # Use the AGLFN name
             name = getGlyphnameForUnicode(value)
         else:
+            # Let Glyphs decide on the name
             g = GSGlyph()
             g.unicode = f"{value:04X}"
             g.updateGlyphInfo(changeName=True)
@@ -354,7 +511,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         return name
 
     @objc.python_method
-    def get_missing_glyphs_for_block(self, block, font) -> list[str]:
+    def get_missing_glyphs_for_block(self, block: str, font: "GSFont") -> list[str]:
         glyph_list = self.get_block_glyph_list(block, font, False, False)
         if font is None:
             return []
@@ -364,21 +521,26 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     @objc.python_method
     def get_block_glyph_list(
-        self, block, font, markers=True, reserved=True
+        self,
+        block: str,
+        font: "GSFont",
+        add_markers: bool = True,
+        include_reserved: bool = True,
     ) -> list[str]:
-        if markers:
+        if add_markers:
             glyph_list = [f"** {block} **"]
         else:
             glyph_list = []
         tuples = [
             (cp, self.get_glyphname_for_unicode(cp))
             for cp in get_codepoints(block)
-            if reserved or cp in uniName
+            if (include_reserved or cp in uniName)
         ]
-        names = self.get_extra_names(font, tuples)
-        names.sort()
-        glyph_list.extend([n for _, n in names])
-        if markers:
+        # Filter out entries with None as glyph names
+        valid_tuples = [(cp, name) for cp, name in tuples if name is not None]
+        uni_name_tuples = get_extra_names(font.glyphs.keys(), valid_tuples)
+        glyph_list.extend([n for _, n in sorted(uni_name_tuples)])
+        if add_markers:
             glyph_list.extend(["** End **", ".notdef"])
         return [n for n in glyph_list if n is not None]
 
@@ -406,44 +568,6 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                 u = int(u, 16)
         return u
 
-    @objc.python_method
-    def get_extensions(self, font) -> list[str]:
-        """
-        Return all used glyph name extensions in the font
-        """
-        return [
-            n.split(".", 1)[1] for n in self.glyph_names_for_font(font) if "." in n[1:]
-        ]
-
-    @objc.python_method
-    def get_extension_map(self, font) -> dict[str, list[str]]:
-        """
-        Return a map of base glyph names to extension names for the font
-        """
-        d = {}
-        for g in self.glyph_names_for_font(font):
-            if "." in g[1:]:
-                base, _ext = g.split(".", 1)
-                if base not in d:
-                    d[base] = [g]
-                else:
-                    d[base].append(g)
-            else:
-                if g not in d:
-                    d[g] = []
-        return d
-
-    @objc.python_method
-    def get_extra_names(
-        self, font, uni_name_tuples: "list[tuple[int | None, str]]"
-    ) -> "list[tuple[int | None, str]]":
-        ext_map = self.get_extension_map(font)
-        additions = []
-        for u, n in uni_name_tuples:
-            additions.extend([(u, e) for e in ext_map.get(n, [])])
-        uni_name_tuples.extend(additions)
-        return list(set(uni_name_tuples))
-
     # UI Callbacks
 
     @objc.python_method
@@ -464,7 +588,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             font.currentTab.text = f"/{glyphname}"
         else:
             # We’re in the Font view
-            font.selection = [font[glyphname]]
+            font.selection = [font.glyphs[glyphname]]
         self.updateInfo()
 
     @objc.python_method
@@ -559,6 +683,9 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
     @objc.python_method
     def selectDatabase(self, sender=None) -> None:
+        if sender is None:
+            return
+
         if sender.getTitle() == "CLDR":
             self.ortho = self.ortho_cdlr
         else:
@@ -596,7 +723,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                 self.w.block_add_missing.enable(not is_supported)
 
     @objc.python_method
-    def selectOrthography(self, sender=None, index=-1) -> None:
+    def selectOrthography(self, sender=None, index: int = -1) -> None:
         self.w.speakers_label.set("")
         if sender is None:
             i = index
@@ -709,7 +836,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     def showWikiOrthography(self, sender=None) -> None:
         if not self.selected_orthography:
             return
-        search_string = self.selected_orthography.split("(")[0] + " language"
+        search_string = self.selected_orthography.name.split("(")[0] + " language"
         url = (
             "https://en.wikipedia.org/w/index.php?title=Special:Search&search="
             + urllib.parse.quote(search_string, safe="")
@@ -719,7 +846,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     # Internal
 
     @objc.python_method
-    def _updateBlock(self, u) -> None:
+    def _updateBlock(self, u: int | None) -> None:
         if u is None:
             self.w.block_list.set(0)
             self.w.show_block.enable(False)
@@ -759,8 +886,12 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                     if self.font is None:
                         self.unicode = self.get_unicode_for_glyphname(base)
                     else:
-                        if base in self.font:
-                            self.unicode = self.font[base].unicode
+                        if base in self.font.glyphs:
+                            base_glyph = self.font.glyphs[base]
+                            if base_glyph.unicode is None:
+                                self.unicode = None
+                            else:
+                                self.unicode = int(base_glyph.unicode, 16)
                             if self.unicode is None:
                                 self.unicode = self.get_unicode_for_glyphname(base)
                         else:
@@ -785,10 +916,14 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             return
 
         self.info.unicode = u
-        self.w.uni_name.set(self.info.name.title())
+        name = self.info.name
+        if name is None:
+            self.w.uni_name.set("")
+        else:
+            self.w.uni_name.set(name.title())
         if fake:
             self.w.code.set("😀 None")
-            self.w.glyph_name.set(self.glyph.name)
+            self.w.glyph_name.set(self.glyph.name if self.glyph else "")
             self.case = None
             self.w.case.enable(False)
         else:
@@ -803,10 +938,11 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
 
             # Glyph name
             expected_name = self.get_glyphname_for_unicode(u)
-            if self.glyph.name == expected_name:
+            glyph_name = self.glyph.name if self.glyph else ""
+            if glyph_name == expected_name:
                 self.w.glyph_name.set(f"😀 {expected_name}")
             else:
-                self.w.glyph_name.set(f"😡 {self.glyph.name} → {expected_name}")
+                self.w.glyph_name.set(f"😡 {glyph_name} → {expected_name}")
 
             # Case mapping
             lc = self.info.lc_mapping
@@ -828,16 +964,18 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.w.speakers_label.set("")
         self.w.speakers_supported_label.set("")
         # Check which orthographies use current unicode
-        if self.glyph is None:
+        if self.glyph is None or self.unicode is None:
             # Show all
             self.ortho_list = self.ortho.orthographies
         else:
             if self.include_optional:
-                self.ortho_list = self.ortho.get_orthographies_for_unicode_any(
-                    self.unicode
+                self.ortho_list = sorted(
+                    self.ortho.get_orthographies_for_unicode_any(self.unicode)
                 )
             else:
-                self.ortho_list = self.ortho.get_orthographies_for_unicode(self.unicode)
+                self.ortho_list = sorted(
+                    self.ortho.get_orthographies_for_unicode(self.unicode)
+                )
         self.orthographies_in_popup = [o.name for o in self.ortho_list]
         orthography_list_ui_strings = []
         # TODO: We need a strategy for when multiple glyphs are selected
@@ -848,7 +986,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
                 ui_string = "◑ " + o.name
             else:
                 ui_string = "○ " + o.name
-            if not o.uses_unicode_base(self.unicode):
+            if self.unicode is not None and not o.uses_unicode_base(self.unicode):
                 ui_string += " [optional]"
             orthography_list_ui_strings.append(ui_string)
         self.w.orthography_list.setItems(orthography_list_ui_strings)
@@ -857,6 +995,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             self.w.show_orthography.enable(False)
             if (
                 not self.include_optional
+                and self.unicode is not None
                 and len(self.ortho.get_orthographies_for_unicode_any(self.unicode)) != 0
             ):
                 self.w.speakers_supported_label.set(
@@ -873,12 +1012,19 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             self.w.orthography_list.enable(True)
             self.w.show_orthography.enable(self.in_font_view and not self.filtered)
             # If the old name is in the new list, select it
-            try:
-                new_index = self.orthographies_in_popup.index(self.selected_orthography)
-                self.selectOrthography(index=new_index)
-            except ValueError:
-                self.selectOrthography(index=-1)
-            speakers_supported = self.ortho.speakers_supported_by_unicode(self.unicode)
+            if self.selected_orthography is not None:
+                try:
+                    new_index = self.orthographies_in_popup.index(
+                        self.selected_orthography.name
+                    )
+                    self.selectOrthography(index=new_index)
+                except ValueError:
+                    self.selectOrthography(index=-1)
+            speakers_supported = (
+                0
+                if self.unicode is None
+                else self.ortho.speakers_supported_by_unicode(self.unicode)
+            )
             if speakers_supported == 0:
                 # [Tim] This was the main goal of extending this tool:
                 # To detect useless characters, i.e. those that are not required or optional

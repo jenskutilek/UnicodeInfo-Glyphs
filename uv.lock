@@ -247,7 +247,7 @@ wheels = [
 [[package]]
 name = "glyphs-unicodeinfo"
 version = "1.3.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "cocoa-vanilla" },
     { name = "jkunicode" },
@@ -272,7 +272,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cocoa-vanilla", specifier = ">=0.8.0" },
-    { name = "jkunicode", specifier = ">=2.7.0" },
+    { name = "jkunicode", specifier = ">=2.7.2" },
     { name = "pyobjc" },
 ]
 
@@ -302,11 +302,11 @@ wheels = [
 
 [[package]]
 name = "jkunicode"
-version = "2.7.0"
+version = "2.7.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b8/36/d9b6edba8d71915836a7460d2d93399aee79f6ad060a4f4dff4987980acf/jkunicode-2.7.0.tar.gz", hash = "sha256:6489d56572a6febe65fdf16fecb1ed3b14d14d085e60364202b989ec565af0bf", size = 1131479, upload-time = "2026-09-17T11:47:48.797Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/c9/9b26ed225e72bebd1dddf1b9d60e4f320c95a192df2c1412494a9e498e1d/jkunicode-2.7.2.tar.gz", hash = "sha256:10616eadfd93c9f6a7193ddf9a8803dc661b5a341a4482fd2cf4ecef3326f1b1", size = 1144792, upload-time = "2026-10-28T13:35:24.703Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/15/6e/ed98387631c7f2f8275ff20441a6c310a0e9cd25d9910b6a33442cc205ea/jkunicode-2.7.0-py3-none-any.whl", hash = "sha256:06189ee5819b245b1a492f19e8e340e0a2b0d350f6ffe43a9435441a8aa6578f", size = 1307125, upload-time = "2026-09-17T11:47:47.437Z" },
+    { url = "https://files.pythonhosted.org/packages/65/cd/69eac3d6061028cf742ace51f44a3b2e56bbef6f19dfe893d371bf6b5966/jkunicode-2.7.2-py3-none-any.whl", hash = "sha256:76958a81184ce50f84f905149325428c5b943dda536d6bdf66c766b3e6f4f73b", size = 1306677, upload-time = "2026-10-28T13:35:23.068Z" },
 ]
 
 [[package]]
