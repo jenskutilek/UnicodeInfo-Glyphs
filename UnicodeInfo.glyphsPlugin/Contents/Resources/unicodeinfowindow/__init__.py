@@ -1,7 +1,38 @@
 from typing import TYPE_CHECKING
 
+from jkUnicode.uniBlock import uniNameToBlock
+from jkUnicode.uniName import uniName
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+
+def block_completeness(block: str, unicodes: "Iterable[int]") -> str:
+    """
+    Return the Unicode block completeness indicator for the block name and an iterable
+    of Unicode codepoints.
+
+    Args:
+        block (str): The name of the Unicode block to check.
+        unicodes (Iterable[int]): The codepoints, usually taken from a font's cmap.
+
+    Returns:
+        str: The indicator; an empty, half-filled, or filled circle.
+    """
+    any_found = False
+    any_missing = False
+    low, high = uniNameToBlock[block]
+    for cp in range(low, high + 1):
+        if cp in uniName:
+            if cp in unicodes:
+                if any_missing:
+                    return "◑"
+                any_found = True
+            else:
+                if any_found:
+                    return "◑"
+                any_missing = True
+    return "●" if any_found else "○"
 
 
 def get_extension_map(glyph_names: "Iterable[str]") -> dict[str, set[str]]:

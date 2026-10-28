@@ -13,7 +13,7 @@ from jkUnicode.orthography import OrthographyInfo
 from jkUnicode.uniBlock import get_block, get_codepoints, uniNameToBlock
 from jkUnicode.uniName import uniName
 
-from unicodeinfowindow import get_extra_names
+from unicodeinfowindow import block_completeness, get_extra_names
 
 if TYPE_CHECKING:
     from GlyphsApp import GSFont
@@ -412,23 +412,6 @@ class UnicodeInfo(GeneralPlugin):
         return int(self._glyph.unicode, 16)
 
     # Methods
-
-    @objc.python_method
-    def block_completeness(self, block) -> str:
-        any_found = False
-        any_missing = False
-        low, high = uniNameToBlock[block]
-        for cp in range(low, high + 1):
-            if cp in uniName:
-                if cp in self.ortho.cmap:
-                    if any_missing:
-                        return "◑"
-                    any_found = True
-                else:
-                    if any_found:
-                        return "◑"
-                    any_missing = True
-        return "●" if any_found else "○"
 
     @objc.python_method
     def glyph_unicodes(self, glyph) -> set[int]:
