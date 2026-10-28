@@ -25,6 +25,18 @@ def get_extension_map(glyph_names: "Iterable[str]") -> dict[str, set[str]]:
 def get_extra_names(
     glyph_names: "Iterable[str]", uni_name_tuples: "Iterable[tuple[int | None, str]]"
 ) -> set[tuple[int | None, str]]:
+    """
+    Return a set of glyph names based on `uni_name_tuples` and the glyph names from a
+    font, augmented by glyph variants.
+
+    Args:
+        glyph_names (Iterable[str]): The glyph names of a font
+        uni_name_tuples (Iterable[tuple[int | None, str]]): Tuples of Unicode codepoint
+            and glyph name that will be used to determine the additional glyph names
+
+    Returns:
+        set[tuple[int | None, str]]: _description_
+    """
     ext_map = get_extension_map(glyph_names)
     additions = set(uni_name_tuples)
     for uni, name in uni_name_tuples:
