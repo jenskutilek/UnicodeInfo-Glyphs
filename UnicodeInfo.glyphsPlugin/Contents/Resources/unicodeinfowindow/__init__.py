@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 def get_extension_map(glyph_names: "Iterable[str]") -> dict[str, set[str]]:
     """
-    Return a map of base glyph names to extension names for the font.
+    Return a map of base glyph names to glyph names with extensions for the font.
     """
     d: dict[str, set[str]] = {}
     for glyph_name in glyph_names:
