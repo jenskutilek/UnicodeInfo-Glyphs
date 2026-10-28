@@ -267,7 +267,9 @@ class UnicodeInfo(GeneralPlugin):
             # )
         block_list_ui_strings = [""]
         for block in self.blocks_in_popup[1:]:
-            block_list_ui_strings.append(self.block_completeness(block) + " " + block)
+            block_list_ui_strings.append(
+                block_completeness(block, self.ortho.cmap.keys()) + " " + block
+            )
         self.w.reassign_unicodes.enable(False)
         self.w.block_list.setItems(block_list_ui_strings)
         self.w.show_block.enable(False)
