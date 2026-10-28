@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import objc
 from AppKit import NSMenuItem
-from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSGlyph, GSFont
+from GlyphsApp import UPDATEINTERFACE, WINDOW_MENU, Glyphs, GSFont, GSGlyph
 from GlyphsApp.plugins import GeneralPlugin
 from unicodeInfoWindow import UnicodeInfoWindow
 
