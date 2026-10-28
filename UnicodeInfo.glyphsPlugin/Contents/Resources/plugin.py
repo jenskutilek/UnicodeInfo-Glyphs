@@ -520,7 +520,7 @@ class UnicodeInfo(GeneralPlugin):
         tuples = [
             (cp, self.get_glyphname_for_unicode(cp))
             for cp in get_codepoints(block)
-            if (include_reserved or cp in uniName)
+            if include_reserved or cp in uniName
         ]
         # Filter out entries with None as glyph names
         valid_tuples = [(cp, name) for cp, name in tuples if name is not None]
