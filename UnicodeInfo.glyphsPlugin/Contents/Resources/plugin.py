@@ -423,7 +423,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         d = {}
         for g in self.glyph_names_for_font(font):
             if "." in g[1:]:
-                base, ext = g.split(".", 1)
+                base, _ext = g.split(".", 1)
                 if base not in d:
                     d[base] = [g]
                 else:
@@ -755,7 +755,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             if self.unicode is None:
                 if "." in self.glyph.name[1:]:
                     fake = True
-                    base, ext = self.glyph.name.split(".", 1)
+                    base, _ext = self.glyph.name.split(".", 1)
                     if self.font is None:
                         self.unicode = self.get_unicode_for_glyphname(base)
                     else:
