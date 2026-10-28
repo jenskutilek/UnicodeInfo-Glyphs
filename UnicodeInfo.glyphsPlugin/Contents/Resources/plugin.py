@@ -83,6 +83,7 @@ class UnicodeInfo(GeneralPlugin):
         self.name = Glyphs.localize({"en": "Unicode Info", "de": "Unicode-Info"})
 
     def showWindow_(self, sender=None) -> None:
+        self._font = None
         self.glyph = None
         self.glyph_name: str | None = None
         self.filtered: bool = False
