@@ -102,10 +102,10 @@ class UnicodeInfo(GeneralPlugin):
         self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
         self.build_window(manual_update=True)
         if not self.hasNotification:
-            Glyphs.addCallback(self.updateInfo, UPDATEINTERFACE)
+            Glyphs.addCallback(self.updateInfo_, UPDATEINTERFACE)
         self.hasNotification = True
         self.w.open()
-        self.updateInfo()
+        self.font = Glyphs.font
 
     @objc.python_method
     def build_window(self, manual_update=False) -> None:
@@ -265,13 +265,8 @@ class UnicodeInfo(GeneralPlugin):
             #     callback=self.updateInfo_,
             #     sizeStyle="small",
             # )
-        block_list_ui_strings = [""]
-        for block in self.blocks_in_popup[1:]:
-            block_list_ui_strings.append(
-                block_completeness(block, self.ortho.cmap.keys()) + " " + block
-            )
         self.w.reassign_unicodes.enable(False)
-        self.w.block_list.setItems(block_list_ui_strings)
+        self._updateBlockInfo()
         self.w.show_block.enable(False)
         self.w.case.enable(False)
 
@@ -305,8 +300,7 @@ class UnicodeInfo(GeneralPlugin):
         """
         return __file__
 
-    @objc.python_method
-    def updateInfo(self, sender=None) -> None:
+    def updateInfo_(self, sender=None) -> None:
         font = Glyphs.font
         self.font = font
         uni = None
@@ -373,6 +367,7 @@ class UnicodeInfo(GeneralPlugin):
             if g.unicodes and g.export:
                 cmap |= self.glyph_unicodes(g)
         self.ortho.cmap = {u: ".notdef" for u in cmap}
+        self._updateBlockInfo()
 
     @property
     def font_fallback(self) -> "GSFont | None":
@@ -574,14 +569,14 @@ class UnicodeInfo(GeneralPlugin):
         else:
             # We’re in the Font view
             font.selection = [font.glyphs[glyphname]]
-        self.updateInfo()
+        self.updateInfo_()
 
     def addMissingForBlock_(self, sender=None) -> None:
         i = self.w.block_list.get()
         if i > -1:
             blk = self.blocks_in_popup[i]
             self._addMissingBlock(blk)
-            self.updateInfo()
+            self.updateInfo_()
 
     @objc.python_method
     def _addMissingBlock(self, block) -> None:
@@ -849,6 +844,15 @@ class UnicodeInfo(GeneralPlugin):
                 self.w.block_add_missing.enable(False)
 
     @objc.python_method
+    def _updateBlockInfo(self, sender=None) -> None:
+        block_list_ui_strings = [""]
+        for block in self.blocks_in_popup[1:]:
+            block_list_ui_strings.append(
+                block_completeness(block, self.ortho.cmap.keys()) + " " + block
+            )
+        self.w.block_list.setItems(block_list_ui_strings)
+
+    @objc.python_method
     def _updateGlyph(self) -> None:
         if self.font is None:
             self.w.reassign_unicodes.enable(False)
@@ -1034,5 +1038,5 @@ class UnicodeInfo(GeneralPlugin):
     @objc.python_method
     def windowClosed(self, sender) -> None:
         if self.hasNotification:
-            Glyphs.removeCallback(self.updateInfo)
+            Glyphs.removeCallback(self.updateInfo_)
             self.hasNotification = False
