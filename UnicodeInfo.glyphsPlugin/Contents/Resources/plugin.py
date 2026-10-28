@@ -156,14 +156,14 @@ class UnicodeInfo(GeneralPlugin):
         self.w.wiki_character = ImageButton(
             (-94, y - 1.5, 16, 16),
             imageObject=wikipedia_icon,
-            callback=self.showWikiCharacter,
+            callback=self.showWikiCharacter_,
             bordered=False,
             sizeStyle="small",
         )
         self.w.reassign_unicodes = Button(
             (-72, y - 6, -10, 25),
             "Assign all",
-            callback=self.reassignUnicodes,
+            callback=self.reassignUnicodes_,
             sizeStyle="small",
         )
         y += 20
@@ -174,7 +174,7 @@ class UnicodeInfo(GeneralPlugin):
         self.w.case = Button(
             (-72, y - 6, -10, 25),
             "\u2191\u2193 Case",
-            callback=self.toggleCase,
+            callback=self.toggleCase_,
             sizeStyle="small",
         )
         y += 20
@@ -182,13 +182,13 @@ class UnicodeInfo(GeneralPlugin):
         self.w.block_list = PopUpButton(
             (axis, y - 4, -101, 20),
             [],
-            callback=self.selectBlock,
+            callback=self.selectBlock_WithName_,
             sizeStyle="small",
         )
         self.w.show_block = Button(
             (-72, y - 6, -10, 25),
             "Show",
-            callback=self.showBlock,
+            callback=self.showBlock_,
             sizeStyle="small",
         )
         y += 24
@@ -198,14 +198,14 @@ class UnicodeInfo(GeneralPlugin):
         self.w.database_list = PopUpButton(
             (axis, y - 4, -101, 20),
             ["Hyperglot", "CLDR"],
-            callback=self.selectDatabase,
+            callback=self.selectDatabase_,
             sizeStyle="small",
         )
         y += 16
         self.w.include_optional = CheckBox(
             (axis + 4, y, 200, 20),
             "Include optional characters",
-            callback=self.includeOptional,
+            callback=self.includeOptional_,
             sizeStyle="small",
         )
         y += 28
@@ -215,20 +215,20 @@ class UnicodeInfo(GeneralPlugin):
         self.w.orthography_list = PopUpButton(
             (axis, y - 4, -101, 20),
             [],
-            callback=self.selectOrthography,
+            callback=self.selectOrthography_Index_,
             sizeStyle="small",
         )
         self.w.wiki_orthography = ImageButton(
             (-94, y - 1.5, 16, 16),
             imageObject=wikipedia_icon,
-            callback=self.showWikiOrthography,
+            callback=self.showWikiOrthography_,
             bordered=False,
             sizeStyle="small",
         )
         self.w.show_orthography = Button(
             (-72, y - 6, -10, 25),
             "Show",
-            callback=self.showOrthography,
+            callback=self.showOrthography_,
             sizeStyle="small",
         )
         y += 20
@@ -244,25 +244,25 @@ class UnicodeInfo(GeneralPlugin):
             self.w.block_add_missing = Button(
                 (axis, y - 6, 72, 25),
                 "Fill Block",
-                callback=self.addMissingBlock,
+                callback=self.addMissingForBlock_,
                 sizeStyle="small",
             )
             self.w.orthography_add_missing = Button(
                 (axis + 76, y - 6, 72, 25),
                 "Fill Orth.",
-                callback=self.addMissingOrthography,
+                callback=self.addMissingForOrthography_,
                 sizeStyle="small",
             )
             self.w.reset_filter = Button(
                 (-88, y - 6, -10, 25),
                 "Reset Filter",
-                callback=self.resetFilter,
+                callback=self.resetFilter_,
                 sizeStyle="small",
             )
             # self.w.manual_update = Button(
             #     (-60, y - 6, -10, 25),
             #     "Query",
-            #     callback=self.updateInfo,
+            #     callback=self.updateInfo_,
             #     sizeStyle="small",
             # )
         block_list_ui_strings = [""]
@@ -554,8 +554,7 @@ class UnicodeInfo(GeneralPlugin):
 
     # UI Callbacks
 
-    @objc.python_method
-    def toggleCase(self, sender=None) -> None:
+    def toggleCase_(self, sender=None) -> None:
         font = self.font_fallback
         if font is None:
             return
@@ -575,8 +574,7 @@ class UnicodeInfo(GeneralPlugin):
             font.selection = [font.glyphs[glyphname]]
         self.updateInfo()
 
-    @objc.python_method
-    def addMissingBlock(self, sender=None) -> None:
+    def addMissingForBlock_(self, sender=None) -> None:
         i = self.w.block_list.get()
         if i > -1:
             blk = self.blocks_in_popup[i]
@@ -594,9 +592,7 @@ class UnicodeInfo(GeneralPlugin):
         # TODO: Update the block's indicator
         # self.w.block_list.setItem("●" + block[1:])
 
-    @objc.python_method
-    def addMissingOrthography(self, sender=None) -> None:
-        # Add glyphs that are missing for an orthography
+    def addMissingForOrthography_(self, sender=None) -> None:
         # Get selected orthography
         i = self.w.orthography_list.get()
         if i > -1:
@@ -614,16 +610,14 @@ class UnicodeInfo(GeneralPlugin):
 
         add_glyphs_to_font(glyph_list, font)
 
-    @objc.python_method
-    def includeOptional(self, sender=None) -> None:
+    def includeOptional_(self, sender=None) -> None:
         if sender is None:
             return
 
         self.include_optional = sender.get()
         self._updateOrthographies()
 
-    @objc.python_method
-    def reassignUnicodes(self, sender=None) -> None:
+    def reassignUnicodes_(self, sender=None) -> None:
         if self.font is not None:
             unicodes = {g.unicode: g.name for g in self.font.glyphs if g.unicode}
             for g in self.font.glyphs:
@@ -645,8 +639,7 @@ class UnicodeInfo(GeneralPlugin):
                         g.unicode = myUnicode
                         unicodes[myUnicode] = g.name
 
-    @objc.python_method
-    def resetFilter(self, sender=None) -> None:
+    def resetFilter_(self, sender=None) -> None:
         self.w.reset_filter.enable(False)
         self.w.show_orthography.enable(True)
         self.w.show_block.enable(True)
@@ -665,8 +658,7 @@ class UnicodeInfo(GeneralPlugin):
         # https://forum.glyphsapp.com/t/create-list-filter-via-script/2134/13
         font.fontView.glyphsGroupViewController().update()
 
-    @objc.python_method
-    def selectDatabase(self, sender=None) -> None:
+    def selectDatabase_(self, sender=None) -> None:
         if sender is None:
             return
 
@@ -677,8 +669,7 @@ class UnicodeInfo(GeneralPlugin):
             self.ortho = self.ortho_hyperglot
         self._updateOrthographies()
 
-    @objc.python_method
-    def selectBlock(self, sender=None, name="") -> None:
+    def selectBlock_WithName_(self, sender=None, name="") -> None:
         i = 0
         if sender is None:
             if name == "":
@@ -706,8 +697,7 @@ class UnicodeInfo(GeneralPlugin):
                 is_supported = len(glyph_list) == 0
                 self.w.block_add_missing.enable(not is_supported)
 
-    @objc.python_method
-    def selectOrthography(self, sender=None, index: int = -1) -> None:
+    def selectOrthography_Index_(self, sender=None, index: int = -1) -> None:
         self.w.speakers_label.set("")
         if sender is None:
             i = index
@@ -749,8 +739,7 @@ class UnicodeInfo(GeneralPlugin):
             self.selected_orthography = None
             self.w.orthography_add_missing.enable(False)
 
-    @objc.python_method
-    def showBlock(self, sender=None) -> None:
+    def showBlock_(self, sender=None) -> None:
         # Callback for the "Show" button of the Unicode blocks list
         if sender is None:
             return
@@ -779,8 +768,7 @@ class UnicodeInfo(GeneralPlugin):
         self.w.show_block.enable(False)
         self.w.show_orthography.enable(False)
 
-    @objc.python_method
-    def showOrthography(self, sender=None) -> None:
+    def showOrthography_(self, sender=None) -> None:
         # Callback for the "Show" button of the Orthographies list
         if self.filtered:
             self._resetFilter()
@@ -800,14 +788,13 @@ class UnicodeInfo(GeneralPlugin):
             glyph_list = self.get_orthography_glyph_list(orthography, font)
             set_filter(font, glyph_list)
         # Set the selection to the same index as before
-        self.selectOrthography(sender=None, index=i)
+        self.selectOrthography_Index_(sender=None, index=i)
         self.w.reset_filter.enable(True)
         self.filtered = True
         self.w.show_block.enable(False)
         self.w.show_orthography.enable(False)
 
-    @objc.python_method
-    def showWikiCharacter(self, sender=None) -> None:
+    def showWikiCharacter_(self, sender=None) -> None:
         if not self.unicode:
             return
         url = (
@@ -816,8 +803,7 @@ class UnicodeInfo(GeneralPlugin):
         )
         webbrowser.open(url)
 
-    @objc.python_method
-    def showWikiOrthography(self, sender=None) -> None:
+    def showWikiOrthography_(self, sender=None) -> None:
         if not self.selected_orthography:
             return
         search_string = self.selected_orthography.name.split("(")[0] + " language"
@@ -1001,9 +987,9 @@ class UnicodeInfo(GeneralPlugin):
                     new_index = self.orthographies_in_popup.index(
                         self.selected_orthography.name
                     )
-                    self.selectOrthography(index=new_index)
+                    self.selectOrthography_Index_(index=new_index)
                 except ValueError:
-                    self.selectOrthography(index=-1)
+                    self.selectOrthography_Index_(index=-1)
             speakers_supported = (
                 0
                 if self.unicode is None
