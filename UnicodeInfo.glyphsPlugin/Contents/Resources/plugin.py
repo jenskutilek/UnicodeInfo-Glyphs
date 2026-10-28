@@ -88,11 +88,11 @@ def speakers_as_string(speakers) -> str:
         return ""
     # round to two significant decimal digits
     # (from https://stackoverflow.com/a/48812729)
-    speakers = int(float("{:.2g}".format(speakers)))
+    speakers = int(float(f"{speakers:.2g}"))
     if speakers >= 1000000:
-        return "{0:g}\u00a0M\u00a0speakers".format(speakers / 1000000)
+        return f"{speakers / 1000000:g}\u00a0M\u00a0speakers"
     else:
-        return "{:,}\u00a0speakers".format(speakers)
+        return f"{speakers:,}\u00a0speakers"
 
 
 class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
@@ -342,7 +342,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             name = getGlyphnameForUnicode(value)
         else:
             g = GSGlyph()
-            g.unicode = "%04X" % value
+            g.unicode = f"{value:04X}"
             g.updateGlyphInfo(changeName=True)
             name = g.name
             if name == "newGlyph":
@@ -521,17 +521,17 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
             for g in self.font.glyphs:
                 myUnicode = self.get_unicode_for_glyphname(g.name)
                 if g.unicode != myUnicode:
-                    print("%s:" % g.name, end="")
+                    print(f"{g.name}:", end="")
                     if g.unicode is not None:
-                        print("%x ->" % g.unicode, end="")
+                        print(f"{g.unicode:x} ->", end="")
                     else:
                         print("<None> ->", end="")
                     if myUnicode is not None:
-                        print("%x" % myUnicode, end="")
+                        print(f"{myUnicode:x}", end="")
                     else:
                         print("<None>", end="")
                     if myUnicode in unicodes:
-                        print("-- Ignored: already in use (/%s)." % unicodes[myUnicode])
+                        print(f"-- Ignored: already in use (/{unicodes[myUnicode]}).")
                     else:
                         print()
                         g.unicode = myUnicode
@@ -794,12 +794,12 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         else:
             # Unicode
             if u == self.glyph_unicode:
-                self.w.code.set("😀 %04X" % u)
+                self.w.code.set(f"😀 {u:04X}")
             else:
                 if self.glyph_unicode is None:
-                    self.w.code.set("😡 None → %04X" % u)
+                    self.w.code.set(f"😡 None → {u:04X}")
                 else:
-                    self.w.code.set("😡 %04X → %04X" % (self.glyph_unicode, u))
+                    self.w.code.set(f"😡 {self.glyph_unicode:04X} → {u:04X}")
 
             # Glyph name
             expected_name = self.get_glyphname_for_unicode(u)
