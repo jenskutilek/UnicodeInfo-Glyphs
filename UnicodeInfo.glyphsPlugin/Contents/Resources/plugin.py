@@ -432,9 +432,9 @@ class UnicodeInfo(GeneralPlugin):
 
     @objc.python_method
     def get_orthography_glyph_list(
-        self, orthography: "Orthography", font: "GSFont", markers: bool = True
+        self, orthography: "Orthography", font: "GSFont", add_markers: bool = True
     ) -> list[str]:
-        if markers:
+        if add_markers:
             glyph_list: list[str | None] = [f"** {orthography.name} **"]
         else:
             glyph_list = []
@@ -443,11 +443,11 @@ class UnicodeInfo(GeneralPlugin):
 
         base = get_expanded_glyph_list(orthography.unicodes_base, ui=self.info)
         base = get_extra_names(glyph_names, base)
-        glyph_list.extend([self.get_glyphname_for_unicode(u) for u, n in sorted(base)])
+        glyph_list.extend([self.get_glyphname_for_unicode(u) for u, _n in sorted(base)])
 
         punc = get_expanded_glyph_list(orthography.unicodes_punctuation, ui=self.info)
         punc = get_extra_names(glyph_names, punc)
-        if markers:
+        if add_markers:
             glyph_list.append("** Punctuation **")
         if punc:
             glyph_list.extend(
@@ -457,7 +457,7 @@ class UnicodeInfo(GeneralPlugin):
         if self.include_optional:
             optn = get_expanded_glyph_list(orthography.unicodes_optional, ui=self.info)
             optn = get_extra_names(glyph_names, optn)
-            if markers:
+            if add_markers:
                 glyph_list.append("** Optional **")
             if optn:
                 glyph_list.extend(
@@ -467,7 +467,7 @@ class UnicodeInfo(GeneralPlugin):
                         if self.get_glyphname_for_unicode(u) not in glyph_list
                     ]
                 )
-        if markers:
+        if add_markers:
             glyph_list.extend(["** End **", ".notdef"])
         return [n for n in glyph_list if n is not None]
 
