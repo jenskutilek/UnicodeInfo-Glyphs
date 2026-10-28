@@ -111,7 +111,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
         self.filtered = False
         self.in_font_view = False
         self.info = UniInfo(0)
-        self.unicode: "int | None" = None
+        self.unicode: int | None = None
         self.ortho_cdlr = OrthographyInfo(ui=self.info, source="CLDR")
         self.ortho_hyperglot = OrthographyInfo(ui=self.info, source="Hyperglot")
         self.ortho = self.ortho_hyperglot
@@ -295,7 +295,7 @@ class UnicodeInfo(GeneralPlugin, UnicodeInfoWindow):
     @objc.python_method
     def get_orthography_glyph_list(self, orthography, font, markers=True) -> list[str]:
         if markers:
-            glyph_list: "list[str | None]" = [f"** {orthography.name} **"]
+            glyph_list: list[str | None] = [f"** {orthography.name} **"]
         else:
             glyph_list = []
 
