@@ -451,7 +451,7 @@ class UnicodeInfo(GeneralPlugin):
             glyph_list.append("** Punctuation **")
         if punc:
             glyph_list.extend(
-                [self.get_glyphname_for_unicode(u) for u, n in sorted(punc)]
+                [self.get_glyphname_for_unicode(u) for u, _n in sorted(punc)]
             )
 
         if self.include_optional:
@@ -463,7 +463,7 @@ class UnicodeInfo(GeneralPlugin):
                 glyph_list.extend(
                     [
                         self.get_glyphname_for_unicode(u)
-                        for u, n in sorted(optn)
+                        for u, _n in sorted(optn)
                         if self.get_glyphname_for_unicode(u) not in glyph_list
                     ]
                 )
