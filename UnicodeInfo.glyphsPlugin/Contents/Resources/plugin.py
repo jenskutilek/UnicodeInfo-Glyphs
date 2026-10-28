@@ -96,7 +96,7 @@ class UnicodeInfo(GeneralPlugin):
         self.ortho_list: list[Orthography] = []
         self.case: int | None = None
         self.view = None
-        self.selected_orthography: Orthography | None = None
+        self.selected_orthography: str | None = None
         self.include_optional: bool = False
         self.all_unicodes_in_font: set[int] = set()
         self.blocks_in_popup = [""] + sorted(uniNameToBlock.keys())
@@ -595,15 +595,21 @@ class UnicodeInfo(GeneralPlugin):
         # self.w.block_list.setItem("●" + block[1:])
 
     def addMissingForOrthography_(self, sender=None) -> None:
+        """
+        Add glyphs that are missing for an orthography.
+
+        Args:
+            sender (_type_, optional): The objc sender. Defaults to None.
+        """
         # Get selected orthography
         i = self.w.orthography_list.get()
         if i > -1:
-            ort = self.ortho_list[i]
+            ort: Orthography = self.ortho_list[i]
             self._addMissingOrthography(ort)
             self._updateOrthographies()
 
     @objc.python_method
-    def _addMissingOrthography(self, orthography: str) -> None:
+    def _addMissingOrthography(self, orthography: "Orthography") -> None:
         font = self.font_fallback
         if font is None:
             return
@@ -808,7 +814,7 @@ class UnicodeInfo(GeneralPlugin):
     def showWikiOrthography_(self, sender=None) -> None:
         if not self.selected_orthography:
             return
-        search_string = self.selected_orthography.name.split("(")[0] + " language"
+        search_string = self.selected_orthography.split("(")[0] + " language"
         url = (
             "https://en.wikipedia.org/w/index.php?title=Special:Search&search="
             + urllib.parse.quote(search_string, safe="")
@@ -987,7 +993,7 @@ class UnicodeInfo(GeneralPlugin):
             if self.selected_orthography is not None:
                 try:
                     new_index = self.orthographies_in_popup.index(
-                        self.selected_orthography.name
+                        self.selected_orthography
                     )
                     self.selectOrthography_Index_(index=new_index)
                 except ValueError:
