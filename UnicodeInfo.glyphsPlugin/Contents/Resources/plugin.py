@@ -644,8 +644,11 @@ class UnicodeInfo(GeneralPlugin):
                         print(f"-- Ignored: already in use (/{unicodes[myUnicode]}).")
                     else:
                         print()
-                        g.unicode = myUnicode
-                        unicodes[myUnicode] = g.name
+                        if myUnicode is None:
+                            g.unicode = ""
+                        else:
+                            g.unicode = hex(myUnicode)
+                            unicodes[g.unicode] = g.name
 
     def resetFilter_(self, sender=None) -> None:
         self.w.reset_filter.enable(False)
